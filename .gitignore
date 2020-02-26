@@ -1,0 +1,22 @@
+
+bin/
+*.exe
+*.idb
+*.ilk
+*.log
+*.obj
+*.pdb
+*.tlog
+/ccls-cache
+config.json
+.d/
+# Compiled Object files
+*.o
+*.obj
+*.json
+
+# Executables
+*.bin
+*.elf
+build/
+!/build/SDL2.dll
