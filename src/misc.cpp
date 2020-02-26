@@ -34,15 +34,15 @@ Controller::Controller(controller_id_e_t id)
 }
 std::int32_t Controller::get_analog(controller_analog_e_t channel)
 {
-    return ncrapi::ProsLvglSim::GetSimCh(channel);
+    return ncrapi::NcrLvglSimKernel::GetSimCh(channel);
 }
 std::int32_t Controller::get_digital(controller_digital_e_t button)
 {
-    return ncrapi::ProsLvglSim::GetSimDig(button);
+    return ncrapi::NcrLvglSimKernel::GetSimDig(button);
 }
 std::int32_t Controller::get_digital_new_press(pros::controller_digital_e_t button)
 {
-    return ncrapi::ProsLvglSim::GetSimDig(button);
+    return ncrapi::NcrLvglSimKernel::GetSimDig(button);
 }
 std::int32_t Controller::rumble(const char *rumble_pattern)
 {

@@ -8,22 +8,21 @@
 #include <conio.h>
 #include <thread>
 
-
 namespace ncrapi {
-class ProsLvglSim
+class NcrLvglSimKernel
 {
   public:
     //饿汉模式单例实现.线程安全
-    static ProsLvglSim *initProsLvglSim();
+    static NcrLvglSimKernel *initNcrLvglSimKernel();
     static void loop(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)());
     //0 leftX 1 leftY 2 rightX 3 rightY
     static int GetSimCh(int);
     static int GetSimDig(int);
 
   private:
-    ProsLvglSim();
-    ~ProsLvglSim();
-    static ProsLvglSim *_prosLvglSim; // 单例对象
+    NcrLvglSimKernel();
+    ~NcrLvglSimKernel();
+    static NcrLvglSimKernel *_ncrLvglSimKernel; // 单例对象
     std::thread *_mainTask = nullptr;
 };
 } // namespace ncrapi

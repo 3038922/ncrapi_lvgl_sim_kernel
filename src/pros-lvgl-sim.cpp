@@ -1,7 +1,7 @@
 
 #include "./pros-lvgl-sim.hpp"
 #if USE_PROS_LVGL_SIM == 1
-#include "lvgl/lvgl.h"
+#include "./lvgl/lvgl.h"
 #include "pros/misc.h"
 #include "pros/rtos.hpp"
 #include <algorithm>
@@ -98,15 +98,15 @@ lv_indev_drv_t _real_kb_drv;
 lv_indev_data_t _kbDate; //键盘数据
 uint32_t _lastKbVal;
 bool isFirtstRun = true;
-ProsLvglSim *ProsLvglSim::_prosLvglSim = nullptr; // 单例定义
-ProsLvglSim *ProsLvglSim::initProsLvglSim()
+NcrLvglSimKernel *NcrLvglSimKernel::_ncrLvglSimKernel = nullptr; // 单例定义
+NcrLvglSimKernel *NcrLvglSimKernel::initNcrLvglSimKernel()
 {
-    if (_prosLvglSim == nullptr)
-        _prosLvglSim = new ProsLvglSim();
-    return _prosLvglSim;
+    if (_ncrLvglSimKernel == nullptr)
+        _ncrLvglSimKernel = new NcrLvglSimKernel();
+    return _ncrLvglSimKernel;
 }
 
-ProsLvglSim::ProsLvglSim()
+NcrLvglSimKernel::NcrLvglSimKernel()
 {
     /*Initialize LittlevGL*/
     lv_init();
@@ -119,13 +119,13 @@ ProsLvglSim::ProsLvglSim()
     _lastKbVal = 0;
     _kbDate.key = 51;
 }
-ProsLvglSim::~ProsLvglSim()
+NcrLvglSimKernel::~NcrLvglSimKernel()
 {
     _mainTask->detach();
     delete _mainTask;
     _mainTask = nullptr;
 }
-void ProsLvglSim::loop(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)())
+void NcrLvglSimKernel::loop(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)())
 {
     if (_kbDate.state == LV_INDEV_STATE_PR || isFirtstRun) //如果按住
     {
@@ -219,11 +219,11 @@ void ProsLvglSim::loop(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)())
     _lastKbVal = _kbDate.key;
     keyboard_read(&_real_kb_drv, &_kbDate);
 }
-int ProsLvglSim::GetSimCh(int x)
+int NcrLvglSimKernel::GetSimCh(int x)
 {
     return std::clamp(_btn[x], -127, 127);
 }
-int ProsLvglSim::GetSimDig(int x)
+int NcrLvglSimKernel::GetSimDig(int x)
 {
     return _btn[x - 2];
 }
