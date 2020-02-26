@@ -1,5 +1,5 @@
 
-#include "./pros-lvgl-sim.hpp"
+#include "./ncrLvglSimKernel.hpp"
 #if USE_PROS_LVGL_SIM == 1
 #include "./lvgl/lvgl.h"
 #include "pros/misc.h"
