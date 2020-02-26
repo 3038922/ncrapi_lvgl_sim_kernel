@@ -4,7 +4,7 @@
                             //1 If you want to use a simulator
 
 #if USE_PROS_LVGL_SIM == 1
-#define LVGL_INCLUDE_PATH "pros_lvgl_sim/lvgl/lvgl.h"
+#define LVGL_INCLUDE_PATH "ncrapi_lvgl_sim_kernel/lvgl/lvgl.h"
 #else
 #define LVGL_INCLUDE_PATH "display/lvgl.h"
 #endif
