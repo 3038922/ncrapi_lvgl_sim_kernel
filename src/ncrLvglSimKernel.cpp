@@ -91,13 +91,14 @@ void taskLVGL(void *pragma)
         pros::delay(10);
     }
 }
-namespace ncrapi {
 
+namespace ncrapi {
 std::array<int, 16> _btn; //0 leftX ,1 leftY ,2  rightX ,3 _rightY;
 lv_indev_drv_t _real_kb_drv;
 lv_indev_data_t _kbDate; //键盘数据
 uint32_t _lastKbVal;
 bool isFirtstRun = true;
+std::array<void (*)(), 5> _fun;
 NcrLvglSimKernel *NcrLvglSimKernel::_ncrLvglSimKernel = nullptr; // 单例定义
 NcrLvglSimKernel *NcrLvglSimKernel::initNcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)())
 {
@@ -106,119 +107,37 @@ NcrLvglSimKernel *NcrLvglSimKernel::initNcrLvglSimKernel(void (*f1)(), void (*f2
     return _ncrLvglSimKernel;
 }
 
-NcrLvglSimKernel::NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)()) : _fun({f1, f2, f3, f4, f5})
+NcrLvglSimKernel::NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)())
 {
+    _fun = {f1, f2, f3, f4, f5};
     /*Initialize LittlevGL*/
     lv_init();
     /*Initialize the HAL (display, input devices, tick) for LittlevGL*/
     hal_init();
-    _mainTask = new std::thread(taskLVGL, nullptr);
+    _lvglTask = new std::thread(taskLVGL, nullptr);
+    pros::delay(100);
     lv_indev_drv_init(&_real_kb_drv);
     _real_kb_drv.type = LV_INDEV_TYPE_KEYPAD;
     _real_kb_drv.read_cb = keyboard_read;
     _lastKbVal = 0;
-    _kbDate.key = 51;
+    _kbDate.key = 50;
     _fun[INIT]();
+    _mainTask = new std::thread(taskMain, nullptr);
+    pros::delay(100);
 }
 NcrLvglSimKernel::~NcrLvglSimKernel()
 {
-    _mainTask->detach();
-    delete _mainTask;
-    _mainTask = nullptr;
+    cleanTask(_mainTask);
+    cleanTask(_lvglTask);
 }
-void NcrLvglSimKernel::loop()
+
+void NcrLvglSimKernel::cleanTask(std::thread *task)
 {
-    if (_kbDate.state == LV_INDEV_STATE_PR || isFirtstRun) //如果按住
+    if (task != nullptr)
     {
-        if (_kbDate.key != _lastKbVal) //如果这次值不等于上次值
-            switch (_kbDate.key)
-            {
-                case 49:
-                    _fun[INIT](); //AUTO
-                    break;
-                case 50:
-                    _fun[OPCONTROL](); //OPCONTROL
-                    break;
-                case 51:
-                    _fun[COMP](); //COMP
-                    break;
-                case 52:
-                    _fun[DISABLE](); //DISABLE
-                    break;
-                default:
-                    _btn.fill(0);
-                    break;
-            }
-        else
-            switch (_kbDate.key)
-            {
-                case 119: //W
-                    _btn[pros::E_CONTROLLER_ANALOG_LEFT_Y]++;
-                    break;
-                case 115: //S
-                    _btn[pros::E_CONTROLLER_ANALOG_LEFT_Y]--;
-                    break;
-                case 97: //A
-                    _btn[pros::E_CONTROLLER_ANALOG_RIGHT_X]--;
-                    break;
-                case 100: //D
-                    _btn[pros::E_CONTROLLER_ANALOG_RIGHT_X]++;
-                case 113: //Q
-                    _btn[pros::E_CONTROLLER_ANALOG_LEFT_X]--;
-                    break;
-                case 101: //E
-                    _btn[pros::E_CONTROLLER_ANALOG_LEFT_X]++;
-                    break;
-                case 38: //Up Arrow
-                    _btn[pros::E_CONTROLLER_ANALOG_RIGHT_Y]--;
-                    break;
-                case 40: //Dw Arrow
-                    _btn[pros::E_CONTROLLER_ANALOG_RIGHT_Y]++;
-                    break;
-                //DIG
-                case 114: //R
-                    _btn[pros::E_CONTROLLER_DIGITAL_UP - 2] = 1;
-                    break;
-                case 102: //F
-                    _btn[pros::E_CONTROLLER_DIGITAL_DOWN - 2] = 1;
-                    break;
-                case 116: //T
-                    _btn[pros::E_CONTROLLER_DIGITAL_LEFT - 2] = 1;
-                    break;
-                case 103: //G
-                    _btn[pros::E_CONTROLLER_DIGITAL_RIGHT - 2] = 1;
-                case 121: //y
-                    _btn[pros::E_CONTROLLER_DIGITAL_X - 2] = 1;
-                    break;
-                case 104: //h
-                    _btn[pros::E_CONTROLLER_DIGITAL_B - 2] = 1;
-                case 117: //u
-                    _btn[pros::E_CONTROLLER_DIGITAL_Y - 2] = 1;
-                    break;
-                case 106: //j
-                    _btn[pros::E_CONTROLLER_DIGITAL_A - 2] = 1;
-                    break;
-                case 122: //z
-                    _btn[pros::E_CONTROLLER_DIGITAL_L1 - 2] = 1;
-                    break;
-                case 120: //x
-                    _btn[pros::E_CONTROLLER_DIGITAL_L2 - 2] = 1;
-                case 99: //c
-                    _btn[pros::E_CONTROLLER_DIGITAL_R1 - 2] = 1;
-                    break;
-                case 118: //v
-                    _btn[pros::E_CONTROLLER_DIGITAL_R2 - 2] = 1;
-                    break;
-                default:
-                    _btn.fill(0);
-                    break;
-            }
+        delete task;
+        task = nullptr;
     }
-    else
-        _btn.fill(0);
-    isFirtstRun = false;
-    _lastKbVal = _kbDate.key;
-    keyboard_read(&_real_kb_drv, &_kbDate);
 }
 int NcrLvglSimKernel::GetSimCh(int x)
 {
@@ -227,6 +146,108 @@ int NcrLvglSimKernel::GetSimCh(int x)
 int NcrLvglSimKernel::GetSimDig(int x)
 {
     return _btn[x - 2];
+}
+void NcrLvglSimKernel::taskMain(void *param)
+{
+    std::thread *subTask = nullptr;
+    while (1)
+    {
+        if (_kbDate.state == LV_INDEV_STATE_PR || isFirtstRun) //如果按住
+        {
+            if (_kbDate.key != _lastKbVal) //如果这次值不等于上次值
+                switch (_kbDate.key)
+                {
+                    case 49:
+                        cleanTask(subTask);
+                        subTask = new std::thread(_fun[AUTONOMOUS]);
+                        break;
+                    case 50:
+                        cleanTask(subTask);
+                        subTask = new std::thread(_fun[OPCONTROL]);
+                        break;
+                    case 51:
+                        cleanTask(subTask);
+                        subTask = new std::thread(_fun[COMP]);
+                        break;
+                    case 52:
+                        cleanTask(subTask);
+                        subTask = new std::thread(_fun[DISABLE]);
+                        break;
+                    default:
+                        _btn.fill(0);
+                        break;
+                }
+            else
+                switch (_kbDate.key)
+                {
+                    case 119: //W
+                        _btn[pros::E_CONTROLLER_ANALOG_LEFT_Y]++;
+                        break;
+                    case 115: //S
+                        _btn[pros::E_CONTROLLER_ANALOG_LEFT_Y]--;
+                        break;
+                    case 97: //A
+                        _btn[pros::E_CONTROLLER_ANALOG_RIGHT_X]--;
+                        break;
+                    case 100: //D
+                        _btn[pros::E_CONTROLLER_ANALOG_RIGHT_X]++;
+                    case 113: //Q
+                        _btn[pros::E_CONTROLLER_ANALOG_LEFT_X]--;
+                        break;
+                    case 101: //E
+                        _btn[pros::E_CONTROLLER_ANALOG_LEFT_X]++;
+                        break;
+                    case 38: //Up Arrow
+                        _btn[pros::E_CONTROLLER_ANALOG_RIGHT_Y]--;
+                        break;
+                    case 40: //Dw Arrow
+                        _btn[pros::E_CONTROLLER_ANALOG_RIGHT_Y]++;
+                        break;
+                    //DIG
+                    case 114: //R
+                        _btn[pros::E_CONTROLLER_DIGITAL_UP - 2] = 1;
+                        break;
+                    case 102: //F
+                        _btn[pros::E_CONTROLLER_DIGITAL_DOWN - 2] = 1;
+                        break;
+                    case 116: //T
+                        _btn[pros::E_CONTROLLER_DIGITAL_LEFT - 2] = 1;
+                        break;
+                    case 103: //G
+                        _btn[pros::E_CONTROLLER_DIGITAL_RIGHT - 2] = 1;
+                    case 121: //y
+                        _btn[pros::E_CONTROLLER_DIGITAL_X - 2] = 1;
+                        break;
+                    case 104: //h
+                        _btn[pros::E_CONTROLLER_DIGITAL_B - 2] = 1;
+                    case 117: //u
+                        _btn[pros::E_CONTROLLER_DIGITAL_Y - 2] = 1;
+                        break;
+                    case 106: //j
+                        _btn[pros::E_CONTROLLER_DIGITAL_A - 2] = 1;
+                        break;
+                    case 122: //z
+                        _btn[pros::E_CONTROLLER_DIGITAL_L1 - 2] = 1;
+                        break;
+                    case 120: //x
+                        _btn[pros::E_CONTROLLER_DIGITAL_L2 - 2] = 1;
+                    case 99: //c
+                        _btn[pros::E_CONTROLLER_DIGITAL_R1 - 2] = 1;
+                        break;
+                    case 118: //v
+                        _btn[pros::E_CONTROLLER_DIGITAL_R2 - 2] = 1;
+                        break;
+                    default:
+                        _btn.fill(0);
+                        break;
+                }
+        }
+        else
+            _btn.fill(0);
+        isFirtstRun = false;
+        _lastKbVal = _kbDate.key;
+        keyboard_read(&_real_kb_drv, &_kbDate);
+    }
 }
 } // namespace ncrapi
 

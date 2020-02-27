@@ -23,7 +23,6 @@ class NcrLvglSimKernel
   public:
     //饿汉模式单例实现.线程安全
     static NcrLvglSimKernel *initNcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)());
-    void loop();
     //0 leftX 1 leftY 2 rightX 3 rightY
     static int GetSimCh(int);
     static int GetSimDig(int);
@@ -31,9 +30,10 @@ class NcrLvglSimKernel
   private:
     NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)());
     ~NcrLvglSimKernel();
+    static void cleanTask(std::thread *task);
     static NcrLvglSimKernel *_ncrLvglSimKernel; // 单例对象
-    std::thread *_mainTask = nullptr;
-    std::array<void (*)(), 5> _fun;
+    std::thread *_mainTask = nullptr, *_lvglTask = nullptr;
+    static void taskMain(void *param);
 };
 } // namespace ncrapi
 extern "C" {
