@@ -99,14 +99,14 @@ lv_indev_data_t _kbDate; //键盘数据
 uint32_t _lastKbVal;
 bool isFirtstRun = true;
 NcrLvglSimKernel *NcrLvglSimKernel::_ncrLvglSimKernel = nullptr; // 单例定义
-NcrLvglSimKernel *NcrLvglSimKernel::initNcrLvglSimKernel()
+NcrLvglSimKernel *NcrLvglSimKernel::initNcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)())
 {
     if (_ncrLvglSimKernel == nullptr)
-        _ncrLvglSimKernel = new NcrLvglSimKernel();
+        _ncrLvglSimKernel = new NcrLvglSimKernel(f1, f2, f3, f4, f5);
     return _ncrLvglSimKernel;
 }
 
-NcrLvglSimKernel::NcrLvglSimKernel()
+NcrLvglSimKernel::NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)()) : _fun({f1, f2, f3, f4, f5})
 {
     /*Initialize LittlevGL*/
     lv_init();
@@ -118,6 +118,7 @@ NcrLvglSimKernel::NcrLvglSimKernel()
     _real_kb_drv.read_cb = keyboard_read;
     _lastKbVal = 0;
     _kbDate.key = 51;
+    _fun[INIT]();
 }
 NcrLvglSimKernel::~NcrLvglSimKernel()
 {
@@ -125,7 +126,7 @@ NcrLvglSimKernel::~NcrLvglSimKernel()
     delete _mainTask;
     _mainTask = nullptr;
 }
-void NcrLvglSimKernel::loop(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)())
+void NcrLvglSimKernel::loop()
 {
     if (_kbDate.state == LV_INDEV_STATE_PR || isFirtstRun) //如果按住
     {
@@ -133,16 +134,16 @@ void NcrLvglSimKernel::loop(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)
             switch (_kbDate.key)
             {
                 case 49:
-                    (*f1)(); //AUTO
+                    _fun[INIT](); //AUTO
                     break;
                 case 50:
-                    (*f2)(); //OPCONTROL
+                    _fun[OPCONTROL](); //OPCONTROL
                     break;
                 case 51:
-                    (*f3)(); //COMP
+                    _fun[COMP](); //COMP
                     break;
                 case 52:
-                    (*f4)(); //DISABLE
+                    _fun[DISABLE](); //DISABLE
                     break;
                 default:
                     _btn.fill(0);
