@@ -123,13 +123,12 @@ NcrLvglSimKernel::NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), voi
     _lastKbVal = 0;
     _kbDate.key = 50;
     _fun[INIT]();
-    _mainTask = new std::thread(taskMain, nullptr);
-    _mainTask->join();
+    // _mainTask = new std::thread(taskMain, nullptr);
+    // _mainTask->join();
     pros::delay(100);
 }
 NcrLvglSimKernel::~NcrLvglSimKernel()
 {
-    cleanTask(_mainTask);
     cleanTask(_lvglTask);
 }
 
@@ -254,6 +253,7 @@ void NcrLvglSimKernel::taskMain(void *param)
         isFirtstRun = false;
         _lastKbVal = _kbDate.key;
         keyboard_read(&_real_kb_drv, &_kbDate);
+        pros::delay(20);
     }
 }
 } // namespace ncrapi

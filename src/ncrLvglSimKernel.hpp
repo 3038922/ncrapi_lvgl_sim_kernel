@@ -26,14 +26,14 @@ class NcrLvglSimKernel
     static int GetSimCh(int);
     static int GetSimDig(int);
     static bool isSTop;
+    static void taskMain(void *param);
 
   private:
     NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)());
     ~NcrLvglSimKernel();
     static void cleanTask(std::thread *task);
     static NcrLvglSimKernel *_ncrLvglSimKernel; // 单例对象
-    std::thread *_mainTask = nullptr, *_lvglTask = nullptr;
-    static void taskMain(void *param);
+    std::thread *_lvglTask = nullptr;
 };
 } // namespace ncrapi
 extern "C" {
