@@ -8,7 +8,6 @@
 #include <array>
 #include <conio.h>
 #include <thread>
-
 namespace ncrapi {
 enum {
     INIT,
@@ -26,6 +25,7 @@ class NcrLvglSimKernel
     //0 leftX 1 leftY 2 rightX 3 rightY
     static int GetSimCh(int);
     static int GetSimDig(int);
+    static bool isSTop;
 
   private:
     NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)());

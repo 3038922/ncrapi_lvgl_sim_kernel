@@ -98,6 +98,7 @@ lv_indev_drv_t _real_kb_drv;
 lv_indev_data_t _kbDate; //键盘数据
 uint32_t _lastKbVal;
 bool isFirtstRun = true;
+bool NcrLvglSimKernel::isSTop = true;
 std::array<void (*)(), 5> _fun;
 NcrLvglSimKernel *NcrLvglSimKernel::_ncrLvglSimKernel = nullptr; // 单例定义
 NcrLvglSimKernel *NcrLvglSimKernel::initNcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)())
@@ -123,6 +124,7 @@ NcrLvglSimKernel::NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), voi
     _kbDate.key = 50;
     _fun[INIT]();
     _mainTask = new std::thread(taskMain, nullptr);
+    _mainTask->join();
     pros::delay(100);
 }
 NcrLvglSimKernel::~NcrLvglSimKernel()
@@ -135,6 +137,7 @@ void NcrLvglSimKernel::cleanTask(std::thread *task)
 {
     if (task != nullptr)
     {
+        task->detach();
         delete task;
         task = nullptr;
     }
@@ -158,18 +161,22 @@ void NcrLvglSimKernel::taskMain(void *param)
                 switch (_kbDate.key)
                 {
                     case 49:
+                        isSTop = false;
                         cleanTask(subTask);
                         subTask = new std::thread(_fun[AUTONOMOUS]);
                         break;
                     case 50:
+                        isSTop = true;
                         cleanTask(subTask);
                         subTask = new std::thread(_fun[OPCONTROL]);
                         break;
                     case 51:
+                        isSTop = false;
                         cleanTask(subTask);
                         subTask = new std::thread(_fun[COMP]);
                         break;
                     case 52:
+                        isSTop = false;
                         cleanTask(subTask);
                         subTask = new std::thread(_fun[DISABLE]);
                         break;
