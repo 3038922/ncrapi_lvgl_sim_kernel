@@ -13,14 +13,36 @@
 #include "./ncrLvglSimKernel.hpp"
 #if USE_PROS_LVGL_SIM == 1
 #include "pros/motors.hpp"
+#include <vector>
 
 namespace pros {
 using namespace pros::c;
+class MotorData
+{
+  public:
+    MotorData(int port) : _port(port) {}
+    ~MotorData() {}
+    double getEnc()
+    {
+        return _encNow;
+    }
+    int getPort()
+    {
+        return _port;
+    }
+
+  private:
+    double _encNow = 0.0;
+    int _port;
+};
+
+std::vector<std::shared_ptr<MotorData>> motorDataList;
 
 Motor::Motor(const std::uint8_t port, const motor_gearset_e_t gearset, const bool reverse,
              const motor_encoder_units_e_t encoder_units)
     : _port(port)
 {
+    motorDataList.push_back(std::make_shared<MotorData>(_port));
     set_gearing(gearset);
     set_reversed(reverse);
     set_encoder_units(encoder_units);
@@ -28,21 +50,24 @@ Motor::Motor(const std::uint8_t port, const motor_gearset_e_t gearset, const boo
 
 Motor::Motor(const std::uint8_t port, const motor_gearset_e_t gearset, const bool reverse) : _port(port)
 {
+    motorDataList.push_back(std::make_shared<MotorData>(_port));
     set_gearing(gearset);
     set_reversed(reverse);
 }
 
 Motor::Motor(const std::uint8_t port, const motor_gearset_e_t gearset) : _port(port)
 {
+    motorDataList.push_back(std::make_shared<MotorData>(_port));
     set_gearing(gearset);
 }
 
 Motor::Motor(const std::uint8_t port, const bool reverse) : _port(port)
 {
+    motorDataList.push_back(std::make_shared<MotorData>(_port));
     set_reversed(reverse);
 }
 
-Motor::Motor(const std::uint8_t port) : _port(port) {}
+Motor::Motor(const std::uint8_t port) : _port(port) { motorDataList.push_back(std::make_shared<MotorData>(_port)); }
 
 std::int32_t Motor::operator=(std::int32_t voltage) const
 {
@@ -166,7 +191,11 @@ std::int32_t Motor::get_zero_position_flag(void) const
 
 double Motor::get_position(void) const
 {
-    return 1;
+    double temp = 0;
+    for (auto it : motorDataList)
+        if (it->getPort() == _port)
+            temp = it->getEnc();
+    return temp;
 }
 
 double Motor::get_power(void) const
