@@ -13,30 +13,38 @@
 #include "./ncrLvglSimKernel.hpp"
 #if USE_PROS_LVGL_SIM == 1
 #include "pros/motors.hpp"
+#include "pros/rtos.hpp"
 #include <vector>
 
 namespace pros {
 using namespace pros::c;
+#define MOTOR_MOVE_RANGE 127
+#define MOTOR_VOLTAGE_RANGE 12000
 class MotorData
 {
   public:
     MotorData(int port) : _port(port) {}
     ~MotorData() {}
-    double getEnc()
-    {
-        return _encNow;
-    }
-    int getPort()
-    {
-        return _port;
-    }
-
-  private:
     double _encNow = 0.0;
-    int _port;
+    int _voltage = 0;
+    int _port = 0;
+    motor_gearset_e_t _gear = E_MOTOR_GEARSET_18;
+    int _reversed = 1;
+    motor_encoder_units_e_t _encoder_units = E_MOTOR_ENCODER_COUNTS; //马达编码器的返回值单位
 };
 
 std::vector<std::shared_ptr<MotorData>> motorDataList;
+void taskMotorSim()
+{
+    while (1)
+    {
+        for (auto it : motorDataList)
+        {
+            ;
+        }
+        pros::delay(10);
+    }
+}
 
 Motor::Motor(const std::uint8_t port, const motor_gearset_e_t gearset, const bool reverse,
              const motor_encoder_units_e_t encoder_units)
@@ -71,12 +79,18 @@ Motor::Motor(const std::uint8_t port) : _port(port) { motorDataList.push_back(st
 
 std::int32_t Motor::operator=(std::int32_t voltage) const
 {
-    return 1;
+    voltage = std::clamp<int>(voltage, -127, 127);
+    int32_t command = (((voltage + MOTOR_MOVE_RANGE) * (MOTOR_VOLTAGE_RANGE)) / (MOTOR_MOVE_RANGE));
+    command -= MOTOR_VOLTAGE_RANGE;
+    return move_voltage(command);
 }
 
 std::int32_t Motor::move(std::int32_t voltage) const
 {
-    return 1;
+    voltage = std::clamp<int>(voltage, -127, 127);
+    int32_t command = (((voltage + MOTOR_MOVE_RANGE) * (MOTOR_VOLTAGE_RANGE)) / (MOTOR_MOVE_RANGE));
+    command -= MOTOR_VOLTAGE_RANGE;
+    return move_voltage(command);
 }
 
 std::int32_t Motor::move_absolute(const double position, const std::int32_t velocity) const
@@ -96,7 +110,15 @@ std::int32_t Motor::move_velocity(const std::int32_t velocity) const
 
 std::int32_t Motor::move_voltage(const std::int32_t voltage) const
 {
-    return 1;
+    std::int32_t temp = PROS_ERR;
+    int voltageTemp = std::clamp<std::int32_t>(voltage, -12000, 12000);
+    for (auto it : motorDataList)
+        if (it->_port == _port)
+        {
+            it->_voltage = voltageTemp;
+            temp = 1;
+        }
+    return temp;
 }
 
 std::int32_t Motor::modify_profiled_velocity(const std::int32_t velocity) const
@@ -141,7 +163,11 @@ double Motor::get_efficiency(void) const
 
 motor_encoder_units_e_t Motor::get_encoder_units(void) const
 {
-    return E_MOTOR_ENCODER_ROTATIONS;
+    motor_encoder_units_e_t temp = E_MOTOR_ENCODER_INVALID;
+    for (auto it : motorDataList)
+        if (it->_port == _port)
+            temp = it->_encoder_units;
+    return temp;
 }
 
 std::uint32_t Motor::get_faults(void) const
@@ -156,7 +182,11 @@ std::uint32_t Motor::get_flags(void) const
 
 motor_gearset_e_t Motor::get_gearing(void) const
 {
-    return E_MOTOR_GEARSET_36;
+    motor_gearset_e_t temp = E_MOTOR_GEARSET_INVALID;
+    for (auto it : motorDataList)
+        if (it->_port == _port)
+            temp = it->_gear;
+    return temp;
 }
 
 motor_pid_full_s_t Motor::get_pos_pid(void) const
@@ -191,10 +221,10 @@ std::int32_t Motor::get_zero_position_flag(void) const
 
 double Motor::get_position(void) const
 {
-    double temp = 0;
+    double temp = PROS_ERR_F;
     for (auto it : motorDataList)
-        if (it->getPort() == _port)
-            temp = it->getEnc();
+        if (it->_port == _port)
+            temp = it->_encNow;
     return temp;
 }
 
@@ -205,7 +235,16 @@ double Motor::get_power(void) const
 
 std::int32_t Motor::is_reversed(void) const
 {
-    return 1;
+    int temp = PROS_ERR;
+    for (auto it : motorDataList)
+        if (it->_port == _port)
+        {
+            if (it->_reversed)
+                temp = 1;
+            else
+                temp = 0;
+        }
+    return temp;
 }
 
 double Motor::get_temperature(void) const
@@ -230,7 +269,11 @@ std::int32_t Motor::get_target_velocity(void) const
 
 std::int32_t Motor::get_voltage(void) const
 {
-    return 1;
+    int temp = PROS_ERR;
+    for (auto it : motorDataList)
+        if (it->_port == _port)
+            temp = it->_voltage;
+    return temp;
 }
 
 std::int32_t Motor::get_voltage_limit(void) const
@@ -260,12 +303,26 @@ std::int32_t Motor::set_current_limit(const std::int32_t limit) const
 
 std::int32_t Motor::set_encoder_units(const motor_encoder_units_e_t units) const
 {
-    return 1;
+    int temp = PROS_ERR;
+    for (auto it : motorDataList)
+        if (it->_port == _port)
+        {
+            it->_encoder_units = units;
+            temp = 1;
+        }
+    return temp;
 }
 
 std::int32_t Motor::set_gearing(const motor_gearset_e_t gearset) const
 {
-    return 1;
+    int temp = PROS_ERR;
+    for (auto it : motorDataList)
+        if (it->_port == _port)
+        {
+            it->_gear = gearset;
+            temp = 1;
+        }
+    return temp;
 }
 
 motor_pid_s_t Motor::convert_pid(double kf, double kp, double ki, double kd)
@@ -306,7 +363,17 @@ std::int32_t Motor::set_zero_position(const double position) const
 
 std::int32_t Motor::set_reversed(const bool reverse) const
 {
-    return 1;
+    int temp = PROS_ERR;
+    for (auto it : motorDataList)
+        if (it->_port == _port)
+        {
+            if (reverse)
+                it->_reversed = 1;
+            else
+                it->_reversed = -1;
+            temp = 1;
+        }
+    return temp;
 }
 
 std::int32_t Motor::set_voltage_limit(const std::int32_t limit) const

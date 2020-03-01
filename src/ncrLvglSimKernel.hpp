@@ -8,6 +8,8 @@
 #include <array>
 #include <conio.h>
 #include <thread>
+#define PROS_ERR (INT32_MAX)
+#define PROS_ERR_F (INFINITY)
 namespace ncrapi {
 enum {
     INIT,
