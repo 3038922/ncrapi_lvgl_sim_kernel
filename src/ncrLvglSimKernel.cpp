@@ -147,12 +147,14 @@ int NcrLvglSimKernel::GetSimDig(int x)
 {
     return _btn[x - 2];
 }
-void NcrLvglSimKernel::taskMain(void *param)
+void NcrLvglSimKernel::mainLoop()
 {
     std::thread *subTask = nullptr;
-    std::thread *motorSimTask = new std::thread(taskMotorSim, nullptr);
+    int tickTime = 0;
+    uint32_t lastTime = 0;
     while (1)
     {
+        tickTime = pros::millis() - lastTime;
         if (_kbDate.state == LV_INDEV_STATE_PR || isFirtstRun) //如果按住
         {
             if (_kbDate.key != _lastKbVal) //如果这次值不等于上次值
@@ -179,7 +181,7 @@ void NcrLvglSimKernel::taskMain(void *param)
                         subTask = new std::thread(_fun[DISABLE]);
                         break;
                     default:
-                        _btn.fill(0);
+                        //  _btn.fill(0);
                         break;
                 }
             else
@@ -252,7 +254,9 @@ void NcrLvglSimKernel::taskMain(void *param)
         isFirtstRun = false;
         _lastKbVal = _kbDate.key;
         keyboard_read(&_real_kb_drv, &_kbDate);
-        pros::delay(20);
+        motorSimLoop(tickTime);
+        lastTime = pros::millis();
+        pros::delay(10);
     }
 }
 } // namespace ncrapi

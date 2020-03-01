@@ -28,8 +28,8 @@ class NcrLvglSimKernel
     static int GetSimCh(int);
     static int GetSimDig(int);
     static bool isSTop;
-    static void taskMain(void *param);
-    static void taskMotorSim(void *param);
+    void mainLoop();
+    void motorSimLoop(const int tickTime);
 
   private:
     NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)());

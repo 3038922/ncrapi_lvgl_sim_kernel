@@ -14,7 +14,9 @@
 #if USE_PROS_LVGL_SIM == 1
 #include "pros/motors.hpp"
 #include "pros/rtos.hpp"
+#include <iostream>
 #include <vector>
+
 #define MOTOR_MOVE_RANGE 127
 #define MOTOR_VOLTAGE_RANGE 12000
 class MotorData
@@ -30,58 +32,52 @@ class MotorData
     int _reversed = 1;
     double _temperature = 0;
     int _isOverTemp = 0;
-    pros::motor_encoder_units_e_t _encoder_units = pros::E_MOTOR_ENCODER_COUNTS; //马达编码器的返回值单位
+    pros::motor_encoder_units_e_t _encoder_units = pros::E_MOTOR_ENCODER_DEGREES; //马达编码器的返回值单位
 };
 
 std::vector<std::shared_ptr<MotorData>> motorDataList;
-void ncrapi::NcrLvglSimKernel::taskMotorSim(void *param)
+void ncrapi::NcrLvglSimKernel::motorSimLoop(const int tickTime)
 {
-    uint32_t tickTime = 0;
-    uint32_t lastTime = 0;
-    while (1)
+    for (auto it : motorDataList)
     {
-        tickTime = pros::millis() - lastTime;
-        for (auto it : motorDataList)
+        if (it->_gear == pros::E_MOTOR_GEARSET_06) //100转/S
         {
-            if (it->_gear == pros::E_MOTOR_GEARSET_06) //100转/S
-            {
-                it->_speedNow = it->_voltage * it->_reversed * tickTime * 0.000833;
-            }
-            else if (it->_gear == pros::E_MOTOR_GEARSET_18) //200转/S
-            {
-                it->_speedNow = it->_voltage * it->_reversed * tickTime * 0.001667;
-            }
-            else //600转/S
-            {
-                it->_speedNow = it->_voltage * it->_reversed * tickTime * 0.005;
-            }
-            double angularVel = it->_speedNow / (30 * 3.1415926); //角速度 弧度每秒 RPM=angularVel*60/2PI;
-            it->_encNow += angularVel * tickTime / 1000;
-            if (it->_encoder_units == pros::E_MOTOR_ENCODER_DEGREES) //角度 0-360
-            {
-                if (it->_encNow > 360)
-                    it->_encNow -= 360;
-                else if (it->_encNow < 0)
-                    it->_encNow += 360;
-            }
-            else if (it->_encoder_units == pros::E_MOTOR_ENCODER_ROTATIONS) //弧度
-                it->_encNow = it->_encNow * (3.1415926 / 180.0);
-            //温度模拟
-            if (abs(it->_voltage) > 10000)
-                it->_temperature += 0.01;
-            else
-                it->_temperature -= 0.001;
-            it->_temperature = std::clamp(it->_temperature, 0.0, 100.0);
-            if (it->_temperature > 60)
-            {
-                it->_isOverTemp = 1;
-                it->_voltage /= 60;
-            }
-            else
-                it->_isOverTemp = 0;
+            it->_speedNow = it->_voltage * it->_reversed * tickTime * 0.000833;
         }
-        lastTime = pros::millis();
-        pros::delay(10);
+        else if (it->_gear == pros::E_MOTOR_GEARSET_18) //200转/S
+        {
+            it->_speedNow = it->_voltage * it->_reversed * tickTime * 0.001667;
+        }
+        else //600转/S
+        {
+            it->_speedNow = it->_voltage * it->_reversed * tickTime * 0.005;
+        }
+        double angularVel = (it->_speedNow * 3.1415926) / 30.0;  //角速度 弧度每秒 RPM=angularVel*60/2PI;
+        it->_encNow += (3.0 / 500.0 * it->_speedNow * tickTime); //角度=角速度*时间
+        // if (it->_encoder_units == pros::E_MOTOR_ENCODER_DEGREES) //角度累加 默认值
+        // {
+        //     if (it->_encNow > 360.0)
+        //         it->_encNow -= 360.0;
+        //     else if (it->_encNow < 0)
+        //         it->_encNow += 360.0;
+        // }
+        // else if (it->_encoder_units == pros::E_MOTOR_ENCODER_ROTATIONS) //弧度
+        //     it->_encNow = it->_encNow * (3.1415926 / 180.0);
+        // std::cout << "tickTime:" << tickTime << " port:" << it->_port << " vol:" << it->_voltage << " reversed:" << it->_reversed
+        //           << " angularVel:" << angularVel << " spd:" << it->_speedNow << " _enc:" << it->_encNow << " encoder_units:" << it->_encoder_units << std::endl;
+        //温度模拟
+        if (abs(it->_voltage) > 10000)
+            it->_temperature += 0.01;
+        else
+            it->_temperature -= 0.001;
+        it->_temperature = std::clamp(it->_temperature, 0.0, 100.0);
+        if (it->_temperature > 60)
+        {
+            it->_isOverTemp = 1;
+            it->_voltage /= 60;
+        }
+        else
+            it->_isOverTemp = 0;
     }
 }
 namespace pros {
