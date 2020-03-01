@@ -123,8 +123,6 @@ NcrLvglSimKernel::NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), voi
     _lastKbVal = 0;
     _kbDate.key = 50;
     _fun[INIT]();
-    // _mainTask = new std::thread(taskMain, nullptr);
-    // _mainTask->join();
     pros::delay(100);
 }
 NcrLvglSimKernel::~NcrLvglSimKernel()
@@ -152,6 +150,7 @@ int NcrLvglSimKernel::GetSimDig(int x)
 void NcrLvglSimKernel::taskMain(void *param)
 {
     std::thread *subTask = nullptr;
+    std::thread *motorSimTask = new std::thread(taskMotorSim, nullptr);
     while (1)
     {
         if (_kbDate.state == LV_INDEV_STATE_PR || isFirtstRun) //如果按住

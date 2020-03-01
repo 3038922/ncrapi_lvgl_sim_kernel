@@ -29,6 +29,7 @@ class NcrLvglSimKernel
     static int GetSimDig(int);
     static bool isSTop;
     static void taskMain(void *param);
+    static void taskMotorSim(void *param);
 
   private:
     NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)());

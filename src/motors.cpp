@@ -15,9 +15,6 @@
 #include "pros/motors.hpp"
 #include "pros/rtos.hpp"
 #include <vector>
-
-namespace pros {
-using namespace pros::c;
 #define MOTOR_MOVE_RANGE 127
 #define MOTOR_VOLTAGE_RANGE 12000
 class MotorData
@@ -26,25 +23,69 @@ class MotorData
     MotorData(int port) : _port(port) {}
     ~MotorData() {}
     double _encNow = 0.0;
+    double _speedNow = 0.0;
     int _voltage = 0;
     int _port = 0;
-    motor_gearset_e_t _gear = E_MOTOR_GEARSET_18;
+    pros::motor_gearset_e_t _gear = pros::E_MOTOR_GEARSET_18;
     int _reversed = 1;
-    motor_encoder_units_e_t _encoder_units = E_MOTOR_ENCODER_COUNTS; //马达编码器的返回值单位
+    double _temperature = 0;
+    int _isOverTemp = 0;
+    pros::motor_encoder_units_e_t _encoder_units = pros::E_MOTOR_ENCODER_COUNTS; //马达编码器的返回值单位
 };
 
 std::vector<std::shared_ptr<MotorData>> motorDataList;
-void taskMotorSim()
+void ncrapi::NcrLvglSimKernel::taskMotorSim(void *param)
 {
+    uint32_t tickTime = 0;
+    uint32_t lastTime = 0;
     while (1)
     {
+        tickTime = pros::millis() - lastTime;
         for (auto it : motorDataList)
         {
-            ;
+            if (it->_gear == pros::E_MOTOR_GEARSET_06) //100转/S
+            {
+                it->_speedNow = it->_voltage * it->_reversed * tickTime * 0.000833;
+            }
+            else if (it->_gear == pros::E_MOTOR_GEARSET_18) //200转/S
+            {
+                it->_speedNow = it->_voltage * it->_reversed * tickTime * 0.001667;
+            }
+            else //600转/S
+            {
+                it->_speedNow = it->_voltage * it->_reversed * tickTime * 0.005;
+            }
+            double angularVel = it->_speedNow / (30 * 3.1415926); //角速度 弧度每秒 RPM=angularVel*60/2PI;
+            it->_encNow += angularVel * tickTime / 1000;
+            if (it->_encoder_units == pros::E_MOTOR_ENCODER_DEGREES) //角度 0-360
+            {
+                if (it->_encNow > 360)
+                    it->_encNow -= 360;
+                else if (it->_encNow < 0)
+                    it->_encNow += 360;
+            }
+            else if (it->_encoder_units == pros::E_MOTOR_ENCODER_ROTATIONS) //弧度
+                it->_encNow = it->_encNow * (3.1415926 / 180.0);
+            //温度模拟
+            if (abs(it->_voltage) > 10000)
+                it->_temperature += 0.01;
+            else
+                it->_temperature -= 0.001;
+            it->_temperature = std::clamp(it->_temperature, 0.0, 100.0);
+            if (it->_temperature > 60)
+            {
+                it->_isOverTemp = 1;
+                it->_voltage /= 60;
+            }
+            else
+                it->_isOverTemp = 0;
         }
+        lastTime = pros::millis();
         pros::delay(10);
     }
 }
+namespace pros {
+using namespace pros::c;
 
 Motor::Motor(const std::uint8_t port, const motor_gearset_e_t gearset, const bool reverse,
              const motor_encoder_units_e_t encoder_units)
@@ -128,7 +169,11 @@ std::int32_t Motor::modify_profiled_velocity(const std::int32_t velocity) const
 
 double Motor::get_actual_velocity(void) const
 {
-    return 1;
+    double temp = PROS_ERR_F;
+    for (auto it : motorDataList)
+        if (it->_port == _port)
+            temp = it->_speedNow;
+    return temp;
 }
 
 motor_brake_mode_e_t Motor::get_brake_mode(void) const
@@ -206,7 +251,11 @@ std::int32_t Motor::get_raw_position(std::uint32_t *const timestamp) const
 
 std::int32_t Motor::is_over_temp(void) const
 {
-    return 1;
+    int temp = PROS_ERR;
+    for (auto it : motorDataList)
+        if (it->_port == _port)
+            temp = it->_isOverTemp;
+    return temp;
 }
 
 std::int32_t Motor::is_stopped(void) const
@@ -249,7 +298,11 @@ std::int32_t Motor::is_reversed(void) const
 
 double Motor::get_temperature(void) const
 {
-    return 20;
+    double temp = PROS_ERR_F;
+    for (auto it : motorDataList)
+        if (it->_port == _port)
+            temp = it->_temperature;
+    return temp;
 }
 
 double Motor::get_target_position(void) const
