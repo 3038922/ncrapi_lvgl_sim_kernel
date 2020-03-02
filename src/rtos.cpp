@@ -28,8 +28,15 @@ void Task::remove()
     delete ((std::thread *)(task));
     task = nullptr;
 }
+
+using std::chrono::system_clock;
 void Task::delay_until(std::uint32_t *const prev_time, const std::uint32_t delta)
 {
+    // std::time_t tt = system_clock::to_time_t(system_clock::now());
+    // struct std::tm *ptm = std::localtime(&tt);
+    // ++ptm->tm_min;
+    // ptm->tm_sec = 0;
+    // std::this_thread::sleep_until(system_clock::from_time_t(mktime(ptm)));
     std::this_thread::sleep_for(std::chrono::milliseconds(delta));
 }
 std::uint32_t Task::get_state()
