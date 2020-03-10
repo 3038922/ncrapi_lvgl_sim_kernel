@@ -8,3 +8,6 @@
 [submodule "lv_drivers"]
 	path = lv_drivers
 	url = https://github.com/littlevgl/lv_drivers.git
+[submodule "freeRTOS"]
+	path = freeRTOS
+	url = https://github.com/3038922/freeRTOS-msvc-simulator.git
