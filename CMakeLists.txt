@@ -3,9 +3,12 @@ cmake_minimum_required(VERSION 3.10)
 #项目名称
 project(ncrapi_lvgl_sim_kernel)
 
-#枚举头文件
-file(GLOB_RECURSE INCLUDES "./*.h" "./*.hpp")
-message(STATUS ${PROJECT_SOURCE_DIR})
+#######################加入freeRTOS模块#########################
+add_subdirectory ("./freeRTOS")
+set (EXTRA_LIBS ${EXTRA_LIBS} freeRTOS)
+
+############################################################################
+
 if(NOT MAKE_LVGL_DRIVE_STATIC_LIB)
     #枚举源文件
     file(GLOB_RECURSE SOURCES "lv_examples/*.c" "lv_examples/*.cpp"  "src/*.cpp" "src/*.c")
@@ -16,13 +19,13 @@ if(NOT MAKE_LVGL_DRIVE_STATIC_LIB)
         include_directories(${SDL2_INCLUDE_DIRS})
         find_package(SDL2 REQUIRED SDL2)
         # 指定生成 ncrapi_lvgl_sim_kernel 链接库
-        add_library (ncrapi_lvgl_sim_kernel ${INCLUDES} ${SOURCES})
+        add_library (ncrapi_lvgl_sim_kernel ${SOURCES})
     elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
         message(STATUS "windows MAKE_LVGL_DRIVE_STATIC_LIB OFF")
         #添加-D
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
         # 指定生成 ncrapi_lvgl_sim_kernel 链接库
-        add_library (ncrapi_lvgl_sim_kernel ${INCLUDES} ${SOURCES})
+        add_library (ncrapi_lvgl_sim_kernel ${SOURCES})
     else()
         message(STATUS "无法判断属于哪种系统!")
     endif()
@@ -41,6 +44,7 @@ else()
         #add_library(resources STATIC ${LIBRESOURCES}_linux)
     elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
         message(STATUS "windows  MAKE_LVGL_DRIVE_STATIC_LIB ON")
+        #添加库文件
         add_library(lvgl_clang_win STATIC ${LIBLVGL})
         add_library(drivers_clang_win STATIC ${LIBDRIVERS})
         #add_library(resources STATIC ${LIBRESOURCES}_win)
