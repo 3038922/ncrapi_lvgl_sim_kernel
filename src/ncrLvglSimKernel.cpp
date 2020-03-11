@@ -7,7 +7,9 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
-
+extern "C" {
+#include "freeRTOS/src/main.h"
+}
 /**
  * Print the memory usage periodically
  * @param param
@@ -37,8 +39,6 @@ int tick_thread(void *data)
         SDL_Delay(5);   /*Sleep for 5 millisecond*/
         lv_tick_inc(5); /*Tell LittelvGL that 5 milliseconds were elapsed*/
     }
-
-    return 0;
 }
 void hal_init(void)
 {
@@ -90,6 +90,14 @@ void taskLVGL(void *pragma)
         lv_task_handler();
         pros::delay(10);
     }
+    vTaskDelete(nullptr);
+}
+extern "C" {
+extern void autonomous(void);
+extern void initialize(void);
+extern void disabled(void);
+extern void competition_initialize(void);
+extern void opcontrol(void);
 }
 
 namespace ncrapi {
@@ -98,58 +106,30 @@ lv_indev_drv_t _real_kb_drv;
 lv_indev_data_t _kbDate; //键盘数据
 uint32_t _lastKbVal;
 bool isFirtstRun = true;
-bool NcrLvglSimKernel::isSTop = true;
-std::array<void (*)(), 5> _fun;
-NcrLvglSimKernel *NcrLvglSimKernel::_ncrLvglSimKernel = nullptr; // 单例定义
-NcrLvglSimKernel *NcrLvglSimKernel::initNcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)())
-{
-    if (_ncrLvglSimKernel == nullptr)
-        _ncrLvglSimKernel = new NcrLvglSimKernel(f1, f2, f3, f4, f5);
-    return _ncrLvglSimKernel;
-}
 
-NcrLvglSimKernel::NcrLvglSimKernel(void (*f1)(), void (*f2)(), void (*f3)(), void (*f4)(), void (*f5)())
+void taskAutonomous(void *pargma)
 {
-    _fun = {f1, f2, f3, f4, f5};
-    /*Initialize LittlevGL*/
-    lv_init();
-    /*Initialize the HAL (display, input devices, tick) for LittlevGL*/
-    hal_init();
-    _lvglTask = new std::thread(taskLVGL, nullptr);
-    pros::delay(100);
-    lv_indev_drv_init(&_real_kb_drv);
-    _real_kb_drv.type = LV_INDEV_TYPE_KEYPAD;
-    _real_kb_drv.read_cb = keyboard_read;
-    _lastKbVal = 0;
-    _kbDate.key = 50;
-    _fun[INIT]();
-    pros::delay(100);
+    autonomous();
+    vTaskDelete(nullptr);
 }
-NcrLvglSimKernel::~NcrLvglSimKernel()
+void taskDisabled(void *pargma)
 {
-    cleanTask(_lvglTask);
+    disabled();
+    vTaskDelete(nullptr);
 }
-
-void NcrLvglSimKernel::cleanTask(std::thread *task)
+void taskCompetition_initialize(void *pargma)
 {
-    if (task != nullptr)
-    {
-        task->detach();
-        delete task;
-        task = nullptr;
-    }
+    competition_initialize();
+    vTaskDelete(nullptr);
 }
-int NcrLvglSimKernel::GetSimCh(int x)
+void taskOpcontrol(void *pargma)
 {
-    return std::clamp(_btn[x], -127, 127);
+    opcontrol();
+    vTaskDelete(nullptr);
 }
-int NcrLvglSimKernel::GetSimDig(int x)
+void taskMainLoop(void *)
 {
-    return _btn[x - 2];
-}
-void NcrLvglSimKernel::mainLoop()
-{
-    std::thread *subTask = nullptr;
+    pros::Task *subTask = nullptr;
     int tickTime = 0;
     uint32_t lastTime = 0;
     while (1)
@@ -161,24 +141,16 @@ void NcrLvglSimKernel::mainLoop()
                 switch (_kbDate.key)
                 {
                     case 49:
-                        isSTop = false;
-                        cleanTask(subTask);
-                        subTask = new std::thread(_fun[AUTONOMOUS]);
+                        subTask = new pros::Task((pros::task_fn_t)taskAutonomous, nullptr, "autoTask");
                         break;
                     case 50:
-                        isSTop = true;
-                        cleanTask(subTask);
-                        subTask = new std::thread(_fun[OPCONTROL]);
+                        subTask = new pros::Task((pros::task_fn_t)taskOpcontrol, nullptr, "autoOpcontrol");
                         break;
                     case 51:
-                        isSTop = false;
-                        cleanTask(subTask);
-                        subTask = new std::thread(_fun[COMP]);
+                        subTask = new pros::Task((pros::task_fn_t)taskCompetition_initialize, nullptr, "taskCompetition");
                         break;
                     case 52:
-                        isSTop = false;
-                        cleanTask(subTask);
-                        subTask = new std::thread(_fun[DISABLE]);
+                        subTask = new pros::Task((pros::task_fn_t)taskDisabled, nullptr, "autoDisabled");
                         break;
                     default:
                         //  _btn.fill(0);
@@ -254,11 +226,48 @@ void NcrLvglSimKernel::mainLoop()
         isFirtstRun = false;
         _lastKbVal = _kbDate.key;
         keyboard_read(&_real_kb_drv, &_kbDate);
-        motorSimLoop(tickTime);
+        NcrLvglSimKernel::initNcrLvglSimKernel()->motorSimLoop(tickTime);
         lastTime = pros::millis();
         pros::delay(10);
     }
 }
+
+NcrLvglSimKernel *NcrLvglSimKernel::_ncrLvglSimKernel = nullptr; // 单例定义
+NcrLvglSimKernel *NcrLvglSimKernel::initNcrLvglSimKernel()
+{
+    if (_ncrLvglSimKernel == nullptr)
+        _ncrLvglSimKernel = new NcrLvglSimKernel();
+    return _ncrLvglSimKernel;
+}
+
+NcrLvglSimKernel::NcrLvglSimKernel()
+{
+    /*Initialize LittlevGL*/
+    lv_init();
+    /*Initialize the HAL (display, input devices, tick) for LittlevGL*/
+    hal_init();
+    _lvglTask = new pros::Task((pros::task_fn_t)taskLVGL, nullptr, "lvglTask");
+    lv_indev_drv_init(&_real_kb_drv);
+    _real_kb_drv.type = LV_INDEV_TYPE_KEYPAD;
+    _real_kb_drv.read_cb = keyboard_read;
+    _lastKbVal = 0;
+    _kbDate.key = 50;
+    initialize();
+    _mainLoopTask = new pros::Task((pros::task_fn_t)taskMainLoop, nullptr, "lvglTask");
+}
+NcrLvglSimKernel::~NcrLvglSimKernel()
+{
+}
+
+int NcrLvglSimKernel::GetSimCh(int x)
+{
+    return std::clamp(_btn[x], -127, 127);
+}
+int NcrLvglSimKernel::GetSimDig(int x)
+{
+    return _btn[x - 2];
+}
+
 } // namespace ncrapi
 
 #else
