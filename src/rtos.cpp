@@ -4,7 +4,7 @@
 #include "lvgl/lvgl.h"
 #include "pros/rtos.hpp"
 #include <ctime>
-#include <thread> // std::thread, std::this_thread::sleep_for
+#include <thread>
 
 namespace pros {
 

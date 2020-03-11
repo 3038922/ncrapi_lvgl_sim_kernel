@@ -2,12 +2,11 @@
 cmake_minimum_required(VERSION 3.10)
 #项目名称
 project(ncrapi_lvgl_sim_kernel)
-
-#######################加入freeRTOS模块#########################
-add_subdirectory ("./freeRTOS")
-set (EXTRA_LIBS ${EXTRA_LIBS} freeRTOS)
-
-############################################################################
+#头文件路径
+include_directories(
+    ${TOOLCHAIN_INC_DIR} 
+    "."
+)
 
 if(NOT MAKE_LVGL_DRIVE_STATIC_LIB)
     #枚举源文件

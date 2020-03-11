@@ -1,7 +1,7 @@
 
 #include "./ncrLvglSimKernel.hpp"
 #if USE_PROS_LVGL_SIM == 1
-#include "./lvgl/lvgl.h"
+#include "../lvgl/lvgl.h"
 #include "pros/misc.h"
 #include "pros/rtos.hpp"
 #include <algorithm>
