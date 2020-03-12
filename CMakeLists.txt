@@ -7,7 +7,7 @@ include_directories(
     ${TOOLCHAIN_INC_DIR} 
     "."
 )
-
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib) #设置WIN库文件存放路径 
 if(NOT MAKE_LVGL_DRIVE_STATIC_LIB)
     #枚举源文件
     file(GLOB_RECURSE SOURCES "lv_examples/*.c" "lv_examples/*.cpp"  "src/*.cpp" "src/*.c")
@@ -15,8 +15,8 @@ if(NOT MAKE_LVGL_DRIVE_STATIC_LIB)
     if(CMAKE_HOST_SYSTEM_NAME STREQUAL Linux)
         #寻找sdl2
         message(STATUS "linux  MAKE_LVGL_DRIVE_STATIC_LIB OFF")
-        include_directories(${SDL2_INCLUDE_DIRS})
         find_package(SDL2 REQUIRED SDL2)
+        include_directories(${SDL2_INCLUDE_DIRS})
         # 指定生成 ncrapi_lvgl_sim_kernel 链接库
         add_library (ncrapi_lvgl_sim_kernel ${SOURCES})
     elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
