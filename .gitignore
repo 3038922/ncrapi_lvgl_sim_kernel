@@ -20,3 +20,4 @@ config.json
 *.elf
 build/
 !/build/SDL2.dll
+/lib/ncrapi_lvgl_sim_kernel.lib
