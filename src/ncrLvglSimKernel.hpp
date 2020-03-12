@@ -28,7 +28,6 @@ class NcrLvglSimKernel
     ~NcrLvglSimKernel();
 
     static NcrLvglSimKernel *_ncrLvglSimKernel; // 单例对象
-    pros::Task *_lvglTask = nullptr, *_mainLoopTask = nullptr;
 };
 } // namespace ncrapi
 extern "C" {

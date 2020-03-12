@@ -5,7 +5,6 @@
 extern "C" {
 #include "freeRTOS/src/main.h"
 }
-
 namespace pros {
 namespace c {
 uint32_t millis(void)
@@ -19,16 +18,14 @@ void delay(const uint32_t milliseconds)
 } // namespace c
 using namespace pros::c;
 
-Task::Task(task_fn_t function, void *parameters,
-           std::uint32_t prio,
-           std::uint16_t stack_depth,
-           const char *name)
+Task::Task(task_fn_t function, void *parameters, std::uint32_t prio, std::uint16_t stack_depth, const char *name)
 {
-    task = (void *)xTaskCreate(function, name, 512, parameters, prio, NULL);
+    TaskHandle_t thisHandle;
+    task = thisHandle;
+    xTaskCreate(function, name, 512, parameters, prio, (TaskHandle_t *)(&task));
 }
 
-Task::Task(task_fn_t function, void *parameters,
-           const char *name)
+Task::Task(task_fn_t function, void *parameters, const char *name)
     : Task(function, parameters, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, name) {}
 
 Task::Task(task_t task) : task(task) {}
@@ -44,7 +41,7 @@ Task Task::current()
 
 void Task::remove()
 {
-    return vTaskDelete((TaskHandle_t)task);
+    return vTaskDelete((TaskHandle_t)(task));
 }
 
 std::uint32_t Task::get_priority(void)

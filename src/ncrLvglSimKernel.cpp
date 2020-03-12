@@ -110,22 +110,27 @@ bool isFirtstRun = true;
 void taskAutonomous(void *pargma)
 {
     autonomous();
-    vTaskDelete(nullptr);
 }
 void taskDisabled(void *pargma)
 {
     disabled();
-    vTaskDelete(nullptr);
 }
 void taskCompetition_initialize(void *pargma)
 {
     competition_initialize();
-    vTaskDelete(nullptr);
 }
 void taskOpcontrol(void *pargma)
 {
     opcontrol();
-    vTaskDelete(nullptr);
+}
+void deleteTask(pros::Task *task)
+{
+    if (task != nullptr)
+    {
+        task->remove();
+        delete task;
+        task = nullptr;
+    }
 }
 void taskMainLoop(void *)
 {
@@ -141,15 +146,19 @@ void taskMainLoop(void *)
                 switch (_kbDate.key)
                 {
                     case 49:
+                        deleteTask(subTask);
                         subTask = new pros::Task((pros::task_fn_t)taskAutonomous, nullptr, "autoTask");
                         break;
                     case 50:
+                        deleteTask(subTask);
                         subTask = new pros::Task((pros::task_fn_t)taskOpcontrol, nullptr, "autoOpcontrol");
                         break;
                     case 51:
+                        deleteTask(subTask);
                         subTask = new pros::Task((pros::task_fn_t)taskCompetition_initialize, nullptr, "taskCompetition");
                         break;
                     case 52:
+                        deleteTask(subTask);
                         subTask = new pros::Task((pros::task_fn_t)taskDisabled, nullptr, "autoDisabled");
                         break;
                     default:
@@ -246,14 +255,14 @@ NcrLvglSimKernel::NcrLvglSimKernel()
     lv_init();
     /*Initialize the HAL (display, input devices, tick) for LittlevGL*/
     hal_init();
-    _lvglTask = new pros::Task((pros::task_fn_t)taskLVGL, nullptr, "lvglTask");
+    xTaskCreate(taskLVGL, "lvglTask", 512, nullptr, TASK_PRIORITY_DEFAULT, nullptr);
     lv_indev_drv_init(&_real_kb_drv);
     _real_kb_drv.type = LV_INDEV_TYPE_KEYPAD;
     _real_kb_drv.read_cb = keyboard_read;
     _lastKbVal = 0;
     _kbDate.key = 50;
     initialize();
-    _mainLoopTask = new pros::Task((pros::task_fn_t)taskMainLoop, nullptr, "lvglTask");
+    xTaskCreate(taskMainLoop, "mainLoopTask", 512, nullptr, TASK_PRIORITY_DEFAULT + 1, nullptr);
 }
 NcrLvglSimKernel::~NcrLvglSimKernel()
 {
