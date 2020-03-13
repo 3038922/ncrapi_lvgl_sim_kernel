@@ -8,7 +8,7 @@
 #include <array>
 #include <iostream>
 extern "C" {
-#include "freeRTOS/src/main.h"
+#include "../freeRTOS/src/main.h"
 }
 /**
  * Print the memory usage periodically
@@ -134,6 +134,7 @@ void deleteTask(pros::Task *task)
 }
 void taskMainLoop(void *)
 {
+    initialize();
     pros::Task *subTask = nullptr;
     int tickTime = 0;
     uint32_t lastTime = 0;
@@ -261,7 +262,6 @@ NcrLvglSimKernel::NcrLvglSimKernel()
     _real_kb_drv.read_cb = keyboard_read;
     _lastKbVal = 0;
     _kbDate.key = 50;
-    initialize();
     xTaskCreate(taskMainLoop, "mainLoopTask", 512, nullptr, TASK_PRIORITY_DEFAULT + 1, nullptr);
 }
 NcrLvglSimKernel::~NcrLvglSimKernel()
