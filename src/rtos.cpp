@@ -3,7 +3,7 @@
 #if USE_PROS_LVGL_SIM == 1
 #include "lvgl/lvgl.h"
 extern "C" {
-#include "freeRTOS/src/main.h"
+#include "../freeRTOS/src/main.h"
 }
 namespace pros {
 namespace c {
@@ -20,8 +20,6 @@ using namespace pros::c;
 
 Task::Task(task_fn_t function, void *parameters, std::uint32_t prio, std::uint16_t stack_depth, const char *name)
 {
-    TaskHandle_t thisHandle;
-    task = thisHandle;
     xTaskCreate(function, name, 512, parameters, prio, (TaskHandle_t *)(&task));
 }
 

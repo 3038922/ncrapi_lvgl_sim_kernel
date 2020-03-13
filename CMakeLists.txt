@@ -2,11 +2,18 @@
 cmake_minimum_required(VERSION 3.10)
 #项目名称
 project(ncrapi_lvgl_sim_kernel)
+#设置c/c++标准
+set(CMAKE_C_STANDARD 11)#C11
+set(CMAKE_CXX_STANDARD 17)#C17
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #头文件路径
 include_directories(
     ${TOOLCHAIN_INC_DIR} 
     "."
+    "../include"
 )
+#关闭警告
+add_compile_options(-Wno-unused-private-field)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib) #设置WIN库文件存放路径 
 if(NOT MAKE_LVGL_DRIVE_STATIC_LIB)
     #枚举源文件
