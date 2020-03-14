@@ -1,6 +1,7 @@
 
 #include "./ncrLvglSimKernel.hpp"
 #if USE_PROS_LVGL_SIM == 1
+#include "keyBoardDrive.hpp"
 #include "pros/misc.hpp"
 
 namespace pros {
@@ -32,17 +33,18 @@ std::uint8_t is_disabled(void)
 Controller::Controller(controller_id_e_t id)
 {
 }
+
 std::int32_t Controller::get_analog(controller_analog_e_t channel)
 {
-    return ncrapi::NcrLvglSimKernel::GetSimCh(channel);
+    return ncrapi::KeyBoard::_KeyBoard->getKeyBoardAnalog((ncrapi::KEYBOARD_ANALOG)channel);
 }
 std::int32_t Controller::get_digital(controller_digital_e_t button)
 {
-    return ncrapi::NcrLvglSimKernel::GetSimDig(button);
+    return ncrapi::KeyBoard::_KeyBoard->getKeyBoradDigtal((ncrapi::KEYBOARD_DIGITAL)button);
 }
 std::int32_t Controller::get_digital_new_press(pros::controller_digital_e_t button)
 {
-    return ncrapi::NcrLvglSimKernel::GetSimDig(button);
+    return ncrapi::KeyBoard::_KeyBoard->getNewPressed((ncrapi::KEYBOARD_DIGITAL)button);
 }
 std::int32_t Controller::rumble(const char *rumble_pattern)
 {

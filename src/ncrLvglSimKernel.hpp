@@ -17,10 +17,7 @@ class NcrLvglSimKernel
 {
   public:
     //饿汉模式单例实现.线程安全
-    static NcrLvglSimKernel *initNcrLvglSimKernel();
-    //0 leftX 1 leftY 2 rightX 3 rightY
-    static int GetSimCh(int);
-    static int GetSimDig(int);
+    static NcrLvglSimKernel *initNcrLvglSimKernel(); //0 leftX 1 leftY 2 rightX 3 rightY
     void motorSimLoop(const int tickTime);
 
   private:

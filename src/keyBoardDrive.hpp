@@ -20,8 +20,8 @@ enum KEYBOARD_DIGITAL {
     KEYBOARD_ANALOG_E = 101,
     KEYBOARD_ANALOG_Q = 113,
     //DIGITAL
-    KEYBOARD_ANALOG_1 = 49,
-    KEYBOARD_ANALOG_2 = 50,
+    KEYBOARD_DIGITAL_1 = 49,
+    KEYBOARD_DIGITAL_2 = 50,
     KEYBOARD_DIGITAL_3 = 51,
     KEYBOARD_DIGITAL_4 = 52,
     KEYBOARD_ANALOG_S = 115,
@@ -50,22 +50,21 @@ class KeyBoard
     //饿汉模式单例实现.线程安全
     static KeyBoard *initKeyBoard();
     bool isPressed();
-
+    bool getFiledDigital(const KEYBOARD_DIGITAL btn);
+    bool getFiledNewPressed(const KEYBOARD_DIGITAL btn);
     int getKeyBoardAnalog(const KEYBOARD_ANALOG ch);
 
     bool getKeyBoradDigtal(const KEYBOARD_DIGITAL btn);
-    bool getNewPrssed(const KEYBOARD_DIGITAL btn);
-
+    bool getNewPressed(const KEYBOARD_DIGITAL btn);
+    static void KeyBoardTask(void *pragma);
+    static KeyBoard *_KeyBoard; // 单例对象
   private:
     KeyBoard();
     ~KeyBoard() {}
-    static KeyBoard *_KeyBoard; // 单例对象
 
-    lv_indev_data_t _kbDate;       //键盘数据
-    std::array<int, 4> _analogVal; //0 leftX ,1 leftY ,2  rightX ,3 _rightY;
+    lv_indev_data_t _kbDate;     //键盘数据
+    std::array<int, 16> _btnVal; //0 leftX ,1 leftY ,2  rightX ,3 _rightY;
     lv_indev_drv_t _real_kb_drv;
-    uint32_t _lastKbVal;
-    bool isFirtstRun = true;
 };
 
 } // namespace ncrapi
