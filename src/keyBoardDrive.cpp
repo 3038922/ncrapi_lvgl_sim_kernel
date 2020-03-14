@@ -145,6 +145,7 @@ void KeyBoard::KeyBoardTask(void *pragma)
         else
             _KeyBoard->_btnVal.fill(0);
         keyboard_read(&_KeyBoard->_real_kb_drv, &_KeyBoard->_kbDate);
+        pros::delay(10);
     }
 }
 } // namespace ncrapi
