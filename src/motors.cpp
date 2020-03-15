@@ -30,7 +30,7 @@ class MotorData
     int _port = 0;
     pros::motor_gearset_e_t _gear = pros::E_MOTOR_GEARSET_18;
     int _reversed = 1;
-    double _temperature = 0;
+    double _temperature = 20.0;
     int _isOverTemp = 0;
     pros::motor_encoder_units_e_t _encoder_units = pros::E_MOTOR_ENCODER_DEGREES; //马达编码器的返回值单位
 };
@@ -52,8 +52,8 @@ void ncrapi::NcrLvglSimKernel::motorSimLoop(const int tickTime)
         {
             it->_speedNow = it->_voltage * it->_reversed * tickTime * 0.005;
         }
-        double angularVel = (it->_speedNow * 3.1415926) / 30.0;  //角速度 弧度每秒 RPM=angularVel*60/2PI;
-        it->_encNow += (3.0 / 500.0 * it->_speedNow * tickTime); //角度=角速度*时间
+        //  double angularVel = (it->_speedNow * 3.1415926 * it->_reversed) / 30.0;  //角速度 弧度每秒 RPM=angularVel*60/2PI;
+        it->_encNow += (3.0 / 500.0 * it->_speedNow * tickTime * it->_reversed); //角度=角速度*时间
         // if (it->_encoder_units == pros::E_MOTOR_ENCODER_DEGREES) //角度累加 默认值
         // {
         //     if (it->_encNow > 360.0)
