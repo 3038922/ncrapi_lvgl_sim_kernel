@@ -109,7 +109,7 @@ ADIUltrasonic::ADIUltrasonic(std::uint8_t port_ping, std::uint8_t port_echo)
 
 ADIGyro::ADIGyro(std::uint8_t port, double multiplier)
 {
-    _port = 1;
+    _port = port;
 }
 
 double ADIGyro::get_value(void) const
