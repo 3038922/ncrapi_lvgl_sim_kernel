@@ -30,7 +30,7 @@ bool KeyBoard::isPressed()
         return true;
     else
     {
-        _kbDate.key = KEYBORAD_NO_PR;
+        _kbDate.key = KEYBOARD_NO_PR;
         return false;
     }
 }
@@ -60,17 +60,17 @@ int KeyBoard::getKeyBoardAnalog(const KEYBOARD_ANALOG ch)
 {
     return std::clamp(_btnVal[ch], -127, 127);
 }
-bool KeyBoard::getKeyBoradDigtal(const KEYBOARD_DIGITAL btn)
+bool KeyBoard::getKeyBoardDigtal(const KEYBOARD_DIGITAL btn)
 {
     return _btnVal[btn - 2];
 }
 bool KeyBoard::getNewPressed(const KEYBOARD_DIGITAL btn)
 {
     bool flag = false;
-    if (getKeyBoradDigtal(btn))
+    if (getKeyBoardDigtal(btn))
         while (1)
         {
-            if (!getKeyBoradDigtal(btn))
+            if (!getKeyBoardDigtal(btn))
             {
                 flag = true;
                 break;

@@ -40,7 +40,7 @@ std::int32_t Controller::get_analog(controller_analog_e_t channel)
 }
 std::int32_t Controller::get_digital(controller_digital_e_t button)
 {
-    return ncrapi::KeyBoard::_KeyBoard->getKeyBoradDigtal((ncrapi::KEYBOARD_DIGITAL)button);
+    return ncrapi::KeyBoard::_KeyBoard->getKeyBoardDigtal((ncrapi::KEYBOARD_DIGITAL)button);
 }
 std::int32_t Controller::get_digital_new_press(pros::controller_digital_e_t button)
 {

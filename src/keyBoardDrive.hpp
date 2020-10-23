@@ -4,7 +4,7 @@
 #include "../lvgl/lvgl.h"
 
 namespace ncrapi {
-#define KEYBORAD_NO_PR 0 //没有按钮按下默认255
+#define KEYBOARD_NO_PR 0 //没有按钮按下默认255
 enum KEYBOARD_ANALOG {
     KEYBOARD_ANALOG_CH1 = 0,
     KEYBOARD_ANALOG_CH2 = 1,
@@ -54,7 +54,7 @@ class KeyBoard
     bool getFiledNewPressed(const KEYBOARD_DIGITAL btn);
     int getKeyBoardAnalog(const KEYBOARD_ANALOG ch);
 
-    bool getKeyBoradDigtal(const KEYBOARD_DIGITAL btn);
+    bool getKeyBoardDigtal(const KEYBOARD_DIGITAL btn);
     bool getNewPressed(const KEYBOARD_DIGITAL btn);
     static void KeyBoardTask(void *pragma);
     static KeyBoard *_KeyBoard; // 单例对象
