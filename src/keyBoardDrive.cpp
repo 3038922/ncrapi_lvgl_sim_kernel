@@ -2,7 +2,9 @@
 #if USE_PROS_LVGL_SIM == 1
 #include "keyBoardDrive.hpp"
 #include "pros/misc.h"
+#include <algorithm>
 #include <iostream>
+
 extern "C" {
 #include "../freeRTOS/src/main.h"
 }

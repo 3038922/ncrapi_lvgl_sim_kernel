@@ -14,6 +14,7 @@
 #if USE_PROS_LVGL_SIM == 1
 #include "pros/motors.hpp"
 #include "pros/rtos.hpp"
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
