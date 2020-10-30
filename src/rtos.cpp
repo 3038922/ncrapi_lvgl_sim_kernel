@@ -27,10 +27,11 @@ Task::Task(task_fn_t function, void *parameters, const char *name)
     : Task(function, parameters, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, name) {}
 
 Task::Task(task_t task) : task(task) {}
-void Task::operator=(const task_t in)
-{
-    task = in;
-}
+// Task &Task::operator=(task_t in)
+// {
+//     task = in;
+//     return this;
+// }
 
 Task Task::current()
 {
@@ -115,11 +116,14 @@ Mutex::Mutex(void)
 bool Mutex::take(std::uint32_t timeout)
 {
     return xQueueSemaphoreTake((QueueHandle_t)mutex, timeout);
+    //return xQueueSemaphoreTake((QueueHandle_t)mutex.get(), timeout);
 }
 
 bool Mutex::give(void)
 {
     return xQueueGenericSend((QueueHandle_t)(mutex), NULL, queueQUEUE_TYPE_SET, queueSEND_TO_BACK);
+
+    //return xQueueGenericSend((QueueHandle_t)(mutex.get()), NULL, queueQUEUE_TYPE_SET, queueSEND_TO_BACK);
 }
 } // namespace pros
 
