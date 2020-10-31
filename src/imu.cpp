@@ -19,7 +19,10 @@ std::int32_t Imu::reset() const
 {
     return 1;
 }
-
+std::int32_t Imu::set_data_rate(std::uint32_t rate) const
+{
+    return 1;
+}
 double Imu::get_rotation() const
 {
     return 1.1;
