@@ -97,11 +97,8 @@
 #define MONITOR_DOUBLE_BUFFERED 0
 
 /*Eclipse: <SDL2/SDL.h>    Visual Studio: <SDL.h>*/
-#if defined(_WIN32) || defined(_WIN64)
-#define MONITOR_SDL_INCLUDE_PATH "SDL2/SDL.h"
-#else
 #define MONITOR_SDL_INCLUDE_PATH <SDL2/SDL.h>
-#endif
+
 /*Different rendering might be used if running in a Virtual machine*/
 #define MONITOR_VIRTUAL_MACHINE 0
 
@@ -113,10 +110,10 @@
  *  Native Windows (including mouse)
  *----------------------------------*/
 #ifndef USE_WINDOWS
-#define USE_WINDOWS 1
+#define USE_WINDOWS 0
 #endif
 
-#define USE_WINDOWS 1
+#define USE_WINDOWS 0
 #if USE_WINDOWS
 #define WINDOW_HOR_RES 480
 #define WINDOW_VER_RES 320
@@ -323,6 +320,10 @@
 #define USE_EVDEV 0
 #endif
 
+#ifndef USE_BSD_EVDEV
+#define USE_BSD_EVDEV 0
+#endif
+
 #if USE_EVDEV
 #define EVDEV_NAME "/dev/input/event0" /*You can use the "evtest" Linux tool to get the list of devices and test them*/
 #define EVDEV_SWAP_AXES 0              /*Swap the x and y axes of the touchscreen*/
@@ -351,6 +352,13 @@
 
 #if USE_KEYBOARD
 /*No settings*/
+#endif
+
+/*----------------------------------------
+ *  GTK drivers (monitor, mouse, keyboard
+ *---------------------------------------*/
+#ifndef USE_GTK
+#define USE_GTK 0
 #endif
 
 #endif /*LV_DRV_CONF_H*/
