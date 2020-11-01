@@ -29,7 +29,7 @@ if(AS_A_SUBPROJECT)
     message(STATUS "ncrapi_lvgl_sim_kernel 作为子项目编译")
     if(NOT MAKE_LVGL_DRIVE_STATIC_LIB)
         #枚举源文件
-        file(GLOB_RECURSE SOURCES "lv_examples/*.c" "lv_examples/*.cpp"  "src/*.cpp" "src/*.c")
+        file(GLOB_RECURSE SOURCES "lv_examples/src/*.c" "lv_examples/src/*.cpp"  "src/*.cpp" "src/*.c")
         #链接SDL2的静态库
         if(CMAKE_HOST_SYSTEM_NAME STREQUAL Linux)
             #寻找sdl2
@@ -49,7 +49,7 @@ if(AS_A_SUBPROJECT)
         endif()
     else() 
         #要建立的静态库
-        file(GLOB_RECURSE LIBLVGL "lvgl/*.c")
+        file(GLOB_RECURSE LIBLVGL "lvgl/src/*.c")
         file(GLOB_RECURSE LIBDRIVERS "lv_drivers/*.c")
         #file(GLOB_RECURSE LIBRESOURCES "./src/system/logo.c" "./src/system/field.c")
         if(CMAKE_HOST_SYSTEM_NAME STREQUAL Linux)
