@@ -1,6 +1,6 @@
 /**
  * @file lv_conf.h
- * Configuration file for v7.7.0-dev
+ * Configuration file for LVGL v7.6.0
  */
 
 /*
@@ -29,7 +29,7 @@
  * - 16: RGB565
  * - 32: ARGB8888
  */
-#define LV_COLOR_DEPTH 32
+#define LV_COLOR_DEPTH     32
 
 /* Swap the 2 bytes of RGB565 color.
  * Useful if the display has a 8 bit interface (e.g. SPI)*/
@@ -80,7 +80,7 @@ typedef int16_t lv_coord_t;
 #define LV_MEM_CUSTOM      0
 #if LV_MEM_CUSTOM == 0
 /* Size of the memory used by `lv_mem_alloc` in bytes (>= 2kB)*/
-#  define LV_MEM_SIZE (128 * 1024)
+#  define LV_MEM_SIZE    (64U * 1024U)
 
 /* Complier prefix for a big array declaration */
 #  define LV_MEM_ATTR
@@ -124,7 +124,7 @@ typedef int16_t lv_coord_t;
 #define LV_INDEV_DEF_DRAG_LIMIT           10
 
 /* Drag throw slow-down in [%]. Greater value -> faster slow-down */
-#define LV_INDEV_DEF_DRAG_THROW           10
+#define LV_INDEV_DEF_DRAG_THROW           20
 
 /* Long press time in milliseconds.
  * Time to send `LV_EVENT_LONG_PRESSSED`) */
@@ -216,7 +216,7 @@ typedef void * lv_fs_drv_user_data_t;
 #endif
 
 /*1: Add a `user_data` to drivers and objects*/
-#define LV_USE_USER_DATA 1
+#define LV_USE_USER_DATA        1
 
 /*1: Show CPU usage and FPS count in the right bottom corner*/
 #define LV_USE_PERF_MONITOR     0
@@ -261,10 +261,8 @@ typedef void * lv_img_decoder_user_data_t;
 
 /* Define a custom attribute to `lv_disp_flush_ready` function */
 #define LV_ATTRIBUTE_FLUSH_READY
-
 /* Required alignment size for buffers */
 #define LV_ATTRIBUTE_MEM_ALIGN_SIZE
-
 /* With size optimization (-Os) the compiler might not align data to
  * 4 or 8 byte boundary. Some HW may need even 32 or 64 bytes.
  * This alignment will be explicitly applied where needed.
@@ -312,7 +310,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  *===============*/
 
 /*1: Enable the log module*/
-#define LV_USE_LOG 1
+#define LV_USE_LOG      1
 #if LV_USE_LOG
 /* How important log should be added:
  * LV_LOG_LEVEL_TRACE       A lot of logs to give detailed information
@@ -325,7 +323,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 
 /* 1: Print the log with 'printf';
  * 0: user need to register a callback with `lv_log_register_print_cb`*/
-#  define LV_LOG_PRINTF 1
+#  define LV_LOG_PRINTF   1
 #endif  /*LV_USE_LOG*/
 
 /*=================
@@ -351,19 +349,19 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 #define LV_USE_ASSERT_MEM       1
 
 /*Check the integrity of `lv_mem` after critical operations. (Slow)*/
-#define LV_USE_ASSERT_MEM_INTEGRITY 1
+#define LV_USE_ASSERT_MEM_INTEGRITY       1
 
 /* Check the strings.
  * Search for NULL, very long strings, invalid characters, and unnatural repetitions. (Slow)
  * If disabled `LV_USE_ASSERT_NULL` will be performed instead (if it's enabled) */
-#define LV_USE_ASSERT_STR 1
+#define LV_USE_ASSERT_STR       1
 
 /* Check NULL, the object's type and existence (e.g. not deleted). (Quite slow)
  * If disabled `LV_USE_ASSERT_NULL` will be performed instead (if it's enabled) */
-#define LV_USE_ASSERT_OBJ 1
+#define LV_USE_ASSERT_OBJ       1
 
 /*Check if the styles are properly initialized. (Fast)*/
-#define LV_USE_ASSERT_STYLE 1
+#define LV_USE_ASSERT_STYLE     1
 
 #endif /*LV_USE_DEBUG*/
 
@@ -379,37 +377,37 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 
 /* Montserrat fonts with bpp = 4
  * https://fonts.google.com/specimen/Montserrat  */
-#define LV_FONT_MONTSERRAT_8     0
-#define LV_FONT_MONTSERRAT_10    0
-#define LV_FONT_MONTSERRAT_12 1
-#define LV_FONT_MONTSERRAT_14 1
-#define LV_FONT_MONTSERRAT_16 1
-#define LV_FONT_MONTSERRAT_18 1
-#define LV_FONT_MONTSERRAT_20 1
-#define LV_FONT_MONTSERRAT_22 1
-#define LV_FONT_MONTSERRAT_24 1
-#define LV_FONT_MONTSERRAT_26 1
-#define LV_FONT_MONTSERRAT_28 1
-#define LV_FONT_MONTSERRAT_30 1
-#define LV_FONT_MONTSERRAT_32 1
-#define LV_FONT_MONTSERRAT_34 1
-#define LV_FONT_MONTSERRAT_36 1
-#define LV_FONT_MONTSERRAT_38 1
-#define LV_FONT_MONTSERRAT_40 1
-#define LV_FONT_MONTSERRAT_42 1
-#define LV_FONT_MONTSERRAT_44 1
-#define LV_FONT_MONTSERRAT_46 1
-#define LV_FONT_MONTSERRAT_48 1
+#define LV_FONT_MONTSERRAT_8     1
+#define LV_FONT_MONTSERRAT_10    1
+#define LV_FONT_MONTSERRAT_12    1
+#define LV_FONT_MONTSERRAT_14    1
+#define LV_FONT_MONTSERRAT_16    1
+#define LV_FONT_MONTSERRAT_18    1
+#define LV_FONT_MONTSERRAT_20    1
+#define LV_FONT_MONTSERRAT_22    1
+#define LV_FONT_MONTSERRAT_24    1
+#define LV_FONT_MONTSERRAT_26    1
+#define LV_FONT_MONTSERRAT_28    1
+#define LV_FONT_MONTSERRAT_30    1
+#define LV_FONT_MONTSERRAT_32    1
+#define LV_FONT_MONTSERRAT_34    1
+#define LV_FONT_MONTSERRAT_36    1
+#define LV_FONT_MONTSERRAT_38    1
+#define LV_FONT_MONTSERRAT_40    1
+#define LV_FONT_MONTSERRAT_42    1
+#define LV_FONT_MONTSERRAT_44    1
+#define LV_FONT_MONTSERRAT_46    1
+#define LV_FONT_MONTSERRAT_48    1
 
 /* Demonstrate special features */
-#define LV_FONT_MONTSERRAT_12_SUBPX 1
-#define LV_FONT_MONTSERRAT_28_COMPRESSED 1
-#define LV_FONT_DEJAVU_16_PERSIAN_HEBREW 1
-#define LV_FONT_SIMSUN_16_CJK 1
+#define LV_FONT_MONTSERRAT_12_SUBPX      1
+#define LV_FONT_MONTSERRAT_28_COMPRESSED 1  /*bpp = 3*/
+#define LV_FONT_DEJAVU_16_PERSIAN_HEBREW 1  /*Hebrew, Arabic, PErisan letters and all their forms*/
+#define LV_FONT_SIMSUN_16_CJK            1  /*1000 most common CJK radicals*/
 
 /*Pixel perfect monospace font
  * http://pelulamu.net/unscii/ */
-#define LV_FONT_UNSCII_8 1
+#define LV_FONT_UNSCII_8     1
 
 /* Optionally declare your custom fonts here.
  * You can use these fonts as default font too
@@ -477,10 +475,10 @@ typedef void * lv_font_user_data_t;
 #define LV_THEME_DEFAULT_COLOR_PRIMARY      lv_color_hex(0x01a2b1)
 #define LV_THEME_DEFAULT_COLOR_SECONDARY    lv_color_hex(0x44d1b6)
 #define LV_THEME_DEFAULT_FLAG               LV_THEME_MATERIAL_FLAG_LIGHT
-#define LV_THEME_DEFAULT_FONT_SMALL &lv_font_montserrat_12
-#define LV_THEME_DEFAULT_FONT_NORMAL &lv_font_montserrat_14
-#define LV_THEME_DEFAULT_FONT_SUBTITLE &lv_font_montserrat_16
-#define LV_THEME_DEFAULT_FONT_TITLE &lv_font_montserrat_18
+#define LV_THEME_DEFAULT_FONT_SMALL         &lv_font_montserrat_12
+#define LV_THEME_DEFAULT_FONT_NORMAL        &lv_font_montserrat_16
+#define LV_THEME_DEFAULT_FONT_SUBTITLE      &lv_font_montserrat_20
+#define LV_THEME_DEFAULT_FONT_TITLE         &lv_font_montserrat_24
 
 /*=================
  *  Text settings
@@ -515,7 +513,7 @@ typedef void * lv_font_user_data_t;
  * Allows mixing Left-to-Right and Right-to-Left texts.
  * The direction will be processed according to the Unicode Bidirectioanl Algorithm:
  * https://www.w3.org/International/articles/inline-bidi-markup/uba-basics*/
-#define LV_USE_BIDI     0
+#define LV_USE_BIDI     1
 #if LV_USE_BIDI
 /* Set the default direction. Supported values:
  * `LV_BIDI_DIR_LTR` Left-to-Right
@@ -527,7 +525,7 @@ typedef void * lv_font_user_data_t;
 /* Enable Arabic/Persian processing
  * In these languages characters should be replaced with
  * an other form based on their position in the text */
-#define LV_USE_ARABIC_PERSIAN_CHARS 0
+#define LV_USE_ARABIC_PERSIAN_CHARS 1
 
 /*Change the built in (v)snprintf functions*/
 #define LV_SPRINTF_CUSTOM   0
@@ -563,7 +561,7 @@ typedef void * lv_obj_user_data_t;
  * LV_EXT_CLICK_AREA_TINY: The extra area can be adjusted horizontally and vertically (0..255 px)
  * LV_EXT_CLICK_AREA_FULL: The extra area can be adjusted in all 4 directions (-32k..+32k px)
  */
-#define LV_USE_EXT_CLICK_AREA LV_EXT_CLICK_AREA_FULL
+#define LV_USE_EXT_CLICK_AREA  LV_EXT_CLICK_AREA_TINY
 
 /*==================
  *  LV OBJ X USAGE
@@ -727,9 +725,7 @@ typedef void * lv_obj_user_data_t;
 #define LV_USE_TABLE    1
 #if LV_USE_TABLE
 #  define LV_TABLE_COL_MAX    12
-#  define LV_TABLE_CELL_STYLE_CNT 4
 #endif
-
 
 /*Tab (dependencies: lv_page, lv_btnm)*/
 #define LV_USE_TABVIEW      1
