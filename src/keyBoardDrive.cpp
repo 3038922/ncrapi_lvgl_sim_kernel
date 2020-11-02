@@ -18,9 +18,11 @@ KeyBoard *KeyBoard::initKeyBoard()
 }
 KeyBoard::KeyBoard()
 {
+
     lv_indev_drv_init(&_real_kb_drv);
     _real_kb_drv.type = LV_INDEV_TYPE_KEYPAD;
     _real_kb_drv.read_cb = keyboard_read;
+    _kb_indev = lv_indev_drv_register(&_real_kb_drv);
     xTaskCreate(KeyBoard::KeyBoardTask, "keyBoardTask", 512, nullptr, TASK_PRIORITY_MAX - 3, nullptr);
 }
 

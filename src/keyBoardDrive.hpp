@@ -65,6 +65,7 @@ class KeyBoard
     lv_indev_data_t _kbDate;     //键盘数据
     std::array<int, 16> _btnVal; //0 leftX ,1 leftY ,2  rightX ,3 _rightY;
     lv_indev_drv_t _real_kb_drv;
+    lv_indev_t *_kb_indev;
 };
 
 } // namespace ncrapi

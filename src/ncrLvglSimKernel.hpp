@@ -27,8 +27,5 @@ class NcrLvglSimKernel
     static NcrLvglSimKernel *_ncrLvglSimKernel; // 单例对象
 };
 } // namespace ncrapi
-extern "C" {
-LV_IMG_DECLARE(mouse_cursor_icon); /*Declare the image file.*/
-}
 #else
 #endif
