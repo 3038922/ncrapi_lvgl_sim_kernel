@@ -32,7 +32,7 @@ void memory_monitor(lv_task_t *param)
  * @param data unused
  * @return never return
  */
-int tick_thread(void *data)
+static int tick_thread(void *data)
 {
     (void)data;
 
@@ -45,7 +45,7 @@ int tick_thread(void *data)
 }
 static lv_indev_t *kb_indev;
 
-void hal_init(void)
+static void hal_init(void)
 {
     /* Add a display
    * Use the 'monitor' driver which creates window on PC's monitor to simulate a
@@ -91,7 +91,7 @@ void hal_init(void)
     /* Optional:
    * Create a memory monitor task which prints the memory usage in
    * periodically.*/
-   // lv_task_create(memory_monitor, 5000, LV_TASK_PRIO_MID, NULL);
+    // lv_task_create(memory_monitor, 5000, LV_TASK_PRIO_MID, NULL);
 }
 void taskLVGL(void *pragma)
 {
@@ -189,8 +189,8 @@ NcrLvglSimKernel::NcrLvglSimKernel()
     lv_init();
     /*Initialize the HAL (display, input devices, tick) for LittlevGL*/
     hal_init();
-    xTaskCreate(taskLVGL, "lvglTask", 512, nullptr, TASK_PRIORITY_MAX - 3, nullptr);
-    xTaskCreate(taskMainLoop, "mainLoopTask", 512, nullptr, TASK_PRIORITY_MAX - 2, nullptr);
+    // xTaskCreate(taskLVGL, "lvglTask", 512, nullptr, TASK_PRIORITY_MAX - 3, nullptr);
+    // xTaskCreate(taskMainLoop, "mainLoopTask", 512, nullptr, TASK_PRIORITY_MAX - 2, nullptr);
 }
 NcrLvglSimKernel::~NcrLvglSimKernel()
 {
