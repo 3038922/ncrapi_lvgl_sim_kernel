@@ -43,7 +43,6 @@ static int tick_thread(void *data)
     }
     return 0;
 }
-static lv_indev_t *kb_indev;
 
 static void hal_init(void)
 {
