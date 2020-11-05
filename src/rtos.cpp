@@ -109,56 +109,35 @@ std::uint32_t Task::get_count(void)
 {
     return uxTaskGetNumberOfTasks();
 }
-
+extern "C" {
 queue_t xQueueCreateMutex(const uint8_t ucQueueType)
 {
     Queue_t *pxNewQueue;
     const uint32_t uxMutexLength = (uint32_t)1, uxMutexSize = (uint32_t)0;
-
     pxNewQueue = (Queue_t *)xQueueGenericCreate(uxMutexLength, uxMutexSize, ucQueueType);
-    prvInitialiseMutex(pxNewQueue);
+    if (pxNewQueue != NULL)
+    {
+        /* The queue create function will set all the queue structure members
+			correctly for a generic queue, but this function is creating a
+			mutex.  Overwrite those members that need to be set differently -
+			in particular the information required for priority inheritance. */
+        pxNewQueue->u.xSemaphore.xMutexHolder = NULL;
+        pxNewQueue->uxQueueType = queueQUEUE_IS_MUTEX;
 
+        /* In case this is a recursive mutex. */
+        pxNewQueue->u.xSemaphore.uxRecursiveCallCount = 0;
+
+        traceCREATE_MUTEX(pxNewQueue);
+
+        /* Start with the semaphore in the expected state. */
+        (void)xQueueGenericSend(pxNewQueue, NULL, (TickType_t)0U, queueSEND_TO_BACK);
+    }
+    else
+    {
+        traceCREATE_MUTEX_FAILED();
+    }
     return pxNewQueue;
 }
-void queue_delete(queue_t queue)
-{
-    Queue_t *const pxQueue = (Queue_t *)queue;
-
-    configASSERT(pxQueue);
-    traceQUEUE_DELETE(pxQueue);
-
-#if (configQUEUE_REGISTRY_SIZE > 0)
-    {
-        vQueueUnregisterQueue(pxQueue);
-    }
-#endif
-
-#if ((configSUPPORT_DYNAMIC_ALLOCATION == 1) && (configSUPPORT_STATIC_ALLOCATION == 0))
-    {
-        /* The queue can only have been allocated dynamically - free it
-		again. */
-        kfree(pxQueue);
-    }
-#elif ((configSUPPORT_DYNAMIC_ALLOCATION == 1) && (configSUPPORT_STATIC_ALLOCATION == 1))
-    {
-        /* The queue could have been allocated statically or dynamically, so
-		check before attempting to free the memory. */
-        if (pxQueue->ucStaticallyAllocated == (uint8_t)pdFALSE)
-        {
-            kfree(pxQueue);
-        }
-        else
-        {
-            mtCOVERAGE_TEST_MARKER();
-        }
-    }
-#else
-    {
-        /* The queue must have been statically allocated, so is not going to be
-		deleted.  Avoid compiler warnings about the unused parameter. */
-        (void)pxQueue;
-    }
-#endif /* configSUPPORT_DYNAMIC_ALLOCATION */
 }
 Mutex::Mutex(void) : mutex((mutex_t)xQueueCreateMutex(queueQUEUE_TYPE_MUTEX), traceQUEUE_DELETE) {}
 
