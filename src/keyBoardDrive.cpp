@@ -6,7 +6,8 @@
 #include <iostream>
 
 extern "C" {
-#include "../freeRTOS/src/main.h"
+#include "freeRTOS/src/freeRTOS/include/FreeRTOS.h"
+#include "task.h"
 }
 namespace ncrapi {
 KeyBoard *KeyBoard::_KeyBoard = nullptr; // 单例定义

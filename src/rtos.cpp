@@ -3,7 +3,8 @@
 #if USE_PROS_LVGL_SIM == 1
 #include "lvgl/lvgl.h"
 extern "C" {
-#include "../freeRTOS/src/main.h"
+#include "freeRTOS/src/freeRTOS/include/FreeRTOS.h"
+#include "task.h"
 }
 namespace pros {
 namespace c {

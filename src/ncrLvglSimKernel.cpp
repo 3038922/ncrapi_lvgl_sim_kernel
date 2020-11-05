@@ -11,7 +11,8 @@
 #include <iostream>
 
 extern "C" {
-#include "../freeRTOS/src/main.h"
+#include "freeRTOS/src/freeRTOS/include/FreeRTOS.h"
+#include "task.h"
 }
 /**
  * Print the memory usage periodically
@@ -32,10 +33,9 @@ void memory_monitor(lv_task_t *param)
  * @param data unused
  * @return never return
  */
+
 static int tick_thread(void *data)
 {
-    (void)data;
-
     while (1)
     {
         lv_tick_inc(5);
@@ -67,29 +67,17 @@ static void hal_init(void)
     lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv); /*Basic initialization*/
     indev_drv.type = LV_INDEV_TYPE_POINTER;
-    indev_drv.read_cb =
-        mouse_read; /*This function will be called periodically (by the library)
-                     to get the mouse position and state*/
+    indev_drv.read_cb = mouse_read; /*This function will be called periodically
+                   (by the library) to get the mouse position and state*/
     lv_indev_drv_register(&indev_drv);
 
     /* If the PC keyboard driver is enabled in`lv_drv_conf.h`
    * add this as an input device. It might be used in some examples. */
-#if USE_KEYBOARD
-    // lv_indev_drv_t kb_drv;
-    // lv_indev_drv_init(&kb_drv);
-    // kb_drv.type = LV_INDEV_TYPE_KEYPAD;
-    // kb_drv.read_cb = keyboard_read;
-    // kb_indev = lv_indev_drv_register(&kb_drv);
-#endif
 
     /* Tick init.
    * You have to call 'lv_tick_inc()' in every milliseconds
    * Create an SDL thread to do this*/
     SDL_CreateThread(tick_thread, "tick", NULL);
-
-    /* Optional:
-   * Create a memory monitor task which prints the memory usage in
-   * periodically.*/
     // lv_task_create(memory_monitor, 5000, LV_TASK_PRIO_MID, NULL);
 }
 void taskLVGL(void *pragma)
