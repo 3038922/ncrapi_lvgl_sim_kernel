@@ -11,8 +11,8 @@ include_directories(
     ${TOOLCHAIN_INC_DIR} 
     "./"
     "../include"
-    "./freeRTOS/src//Configuration Files/"
-    "./freeRTOS/src/External dependence/"
+    "./freeRTOS/src/Configuration Files"
+    "./freeRTOS/src/External dependence"
     "./freeRTOS/src/FreeRTOS/include"
 )
 #添加需要链接的库文件目录 新建好了 链接的时候用

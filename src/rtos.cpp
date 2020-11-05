@@ -3,7 +3,7 @@
 #if USE_PROS_LVGL_SIM == 1
 #include "lvgl/lvgl.h"
 extern "C" {
-#include "freeRTOS/src/freeRTOS/include/FreeRTOS.h"
+#include "freeRTOS/src/userInit/userInit.h"
 #include "task.h"
 }
 namespace pros {
@@ -81,7 +81,8 @@ std::uint32_t Task::notify(void)
 
 std::uint32_t Task::notify_ext(std::uint32_t value, notify_action_e_t action, std::uint32_t *prev_value)
 {
-    return xTaskGenericNotify((TaskHandle_t)task, value, (eNotifyAction)action, prev_value);
+    return 1;
+    // /xTaskGenericNotify((TaskHandle_t)task, value, (eNotifyAction)action, prev_value);
 }
 
 std::uint32_t Task::notify_take(bool clear_on_exit, std::uint32_t timeout)
@@ -109,22 +110,66 @@ std::uint32_t Task::get_count(void)
     return uxTaskGetNumberOfTasks();
 }
 
-Mutex::Mutex(void)
+queue_t xQueueCreateMutex(const uint8_t ucQueueType)
 {
-    mutex = (mutex_t)xQueueCreateMutex(queueQUEUE_TYPE_MUTEX);
+    Queue_t *pxNewQueue;
+    const uint32_t uxMutexLength = (uint32_t)1, uxMutexSize = (uint32_t)0;
+
+    pxNewQueue = (Queue_t *)xQueueGenericCreate(uxMutexLength, uxMutexSize, ucQueueType);
+    prvInitialiseMutex(pxNewQueue);
+
+    return pxNewQueue;
 }
+void queue_delete(queue_t queue)
+{
+    Queue_t *const pxQueue = (Queue_t *)queue;
+
+    configASSERT(pxQueue);
+    traceQUEUE_DELETE(pxQueue);
+
+#if (configQUEUE_REGISTRY_SIZE > 0)
+    {
+        vQueueUnregisterQueue(pxQueue);
+    }
+#endif
+
+#if ((configSUPPORT_DYNAMIC_ALLOCATION == 1) && (configSUPPORT_STATIC_ALLOCATION == 0))
+    {
+        /* The queue can only have been allocated dynamically - free it
+		again. */
+        kfree(pxQueue);
+    }
+#elif ((configSUPPORT_DYNAMIC_ALLOCATION == 1) && (configSUPPORT_STATIC_ALLOCATION == 1))
+    {
+        /* The queue could have been allocated statically or dynamically, so
+		check before attempting to free the memory. */
+        if (pxQueue->ucStaticallyAllocated == (uint8_t)pdFALSE)
+        {
+            kfree(pxQueue);
+        }
+        else
+        {
+            mtCOVERAGE_TEST_MARKER();
+        }
+    }
+#else
+    {
+        /* The queue must have been statically allocated, so is not going to be
+		deleted.  Avoid compiler warnings about the unused parameter. */
+        (void)pxQueue;
+    }
+#endif /* configSUPPORT_DYNAMIC_ALLOCATION */
+}
+Mutex::Mutex(void) : mutex((mutex_t)xQueueCreateMutex(queueQUEUE_TYPE_MUTEX), traceQUEUE_DELETE) {}
 
 bool Mutex::take(std::uint32_t timeout)
 {
-    return xQueueSemaphoreTake((QueueHandle_t)mutex, timeout);
-    //return xQueueSemaphoreTake((QueueHandle_t)mutex.get(), timeout);
+    return xQueueSemaphoreTake((mutex), (timeout));
 }
 
 bool Mutex::give(void)
 {
-    return xQueueGenericSend((QueueHandle_t)(mutex), NULL, queueQUEUE_TYPE_SET, queueSEND_TO_BACK);
-
-    //return xQueueGenericSend((QueueHandle_t)(mutex.get()), NULL, queueQUEUE_TYPE_SET, queueSEND_TO_BACK);
+    return xQueueGenericSend((queue_t)(mutex), NULL, semGIVE_BLOCK_TIME, queueSEND_TO_BACK);
 }
 } // namespace pros
 
