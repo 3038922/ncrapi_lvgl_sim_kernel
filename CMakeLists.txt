@@ -11,19 +11,19 @@ include_directories(
     ${TOOLCHAIN_INC_DIR} 
     "./"
     "../include"
-    "./freeRTOS/src/Configuration Files"
-    "./freeRTOS/src/External dependence"
-    "./freeRTOS/src/FreeRTOS/include"
+    # "./freeRTOS/src/Configuration Files"
+    # "./freeRTOS/src/External dependence"
+    # "./freeRTOS/src/FreeRTOS/include"
 )
 #添加需要链接的库文件目录 新建好了 链接的时候用
-LINK_DIRECTORIES(
-"C:/Program Files (x86)/Windows Kits/10/Lib/10.0.18362.0/um/x64" 
-"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.24.28314/lib/x64"
-"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.24.28314/atlmfc/lib/x64"
-"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/VS/lib/x64"
-"C:/Program Files (x86)/Windows Kits/10/lib/10.0.18362.0/ucrt/x64"
-"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/VS/UnitTest/lib"
-"C:/Program Files (x86)/Windows Kits/NETFXSDK/4.7.2/lib/um/x64")
+# LINK_DIRECTORIES(
+# "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.18362.0/um/x64" 
+# "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.24.28314/lib/x64"
+# "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.24.28314/atlmfc/lib/x64"
+# "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/VS/lib/x64"
+# "C:/Program Files (x86)/Windows Kits/10/lib/10.0.18362.0/ucrt/x64"
+# "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/VS/UnitTest/lib"
+# "C:/Program Files (x86)/Windows Kits/NETFXSDK/4.7.2/lib/um/x64")
 #关闭警告
 add_compile_options(-Wno-unused-private-field)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib) #设置WIN库文件存放路径 
@@ -77,8 +77,8 @@ else()
     message(STATUS "ncrapi_lvgl_sim_kernel 作为独立项目编译")
     set (AS_A_SUBPROJECT 1)#设置成1 迫使后续模块使用静态库形式导入
     #######################加入freeRTOS模块#########################
-    add_subdirectory ("./freeRTOS")
-    set (EXTRA_LIBS ${EXTRA_LIBS} freeRTOS)
+    # add_subdirectory ("./freeRTOS")
+    #set (EXTRA_LIBS ${EXTRA_LIBS} freeRTOS)
     ############################################################################
     #枚举本地源文件
     file(GLOB_RECURSE INCLUDES "lv_drivers/*.h" "lv_examples/*.h"  "lvgl/*.h"  "./*.h" )
