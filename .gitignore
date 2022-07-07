@@ -1,24 +1,13 @@
 
-bin/
-*.exe
-*.idb
-*.ilk
-*.log
-*.obj
-*.pdb
-*.tlog
-/ccls-cache
-config.json
-.d/
-# Compiled Object files
-*.o
-*.obj
-*.json
-
-# Executables
-*.bin
-*.elf
+# Ignore build folder
 build/
-!/build/SDL2.dll
-/lib/ncrapi_lvgl_sim_kernel.lib
+# Ignore UI folder, this should be commited in its own repository
+ui/
+
+# Ignore all dot folders, with below exceptions
+.*/
+
+# VSCode
+!.vscode/
+.vscode/*.log
 .cache/
